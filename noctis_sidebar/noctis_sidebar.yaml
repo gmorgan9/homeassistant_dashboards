@@ -1,0 +1,2414 @@
+wallpanel:
+  enabled: true
+  debug: false
+  fullscreen: false
+  idle_time: 0
+  fade_in_time: 1
+  black_screen_after_time: 0
+  control_reactivation_time: 0
+  screensaver_entity: input_boolean.${browser_id}_screensaver
+  screensaver_stop_navigation_path: /dashboard-test/overview/
+  image_url: media-source://media_source/local/wall-tablet
+  image_fit: cover
+  image_list_update_interval: 3600
+  image_order: random
+  display_time: 60
+  crossfade_time: 1
+  profile: device_${browser_id}
+  profiles:
+    device_wall_tablet_hallway:
+      idle_time: 0
+title: ''
+kiosk_mode:
+  non_admin_settings:
+    kiosk: true
+  mobile_settings:
+    hide_header: true
+sidebar:
+  width:
+    mobile: 20
+    tablet: 20
+    desktop: 20
+  digitalClock: true
+  digitalClockWithSeconds: false
+  twelveHourVersion: true
+  date: true
+  dateFormat: dddd, MMMM DD
+  period: false
+  sidebarMenu:
+    - action: navigate
+      navigation_path: /dashboard-test/overview
+      name: Overview
+      active: true
+      icon: mdi:view-dashboard
+    - action: navigate
+      navigation_path: /dashboard-test/devices
+      name: Devices
+      active: true
+      icon: mdi:home-automation
+    - action: navigate
+      navigation_path: /dashboard-test/music
+      name: Music
+      active: true
+      icon: mdi:music
+    - action: navigate
+      navigation_path: /dashboard-test/calendar
+      name: Calendar
+      active: true
+      icon: mdi:calendar
+    - action: navigate
+      navigation_path: /dashboard-test/security
+      name: Security
+      active: true
+      icon: mdi:cctv
+    - action: navigate
+      navigation_path: /dashboard-test/system
+      name: System
+      active: true
+      icon: mdi:cog
+  bottomCard:
+    type: custom:layout-card
+    cardOptions:
+      layout_type: custom:grid-layout
+      cards:
+        - type: custom:button-card
+          entity: weather.home
+          show_name: false
+          show_icon: false
+          custom_fields:
+            temp: |
+              [[[
+                return states['weather.home'].attributes.temperature + '°';
+              ]]]
+            cond: |
+              [[[
+                var time = states["weather.home"].state;
+                let weather_condition = '';
+
+                if (time == 'clear-night') {
+                  weather_condition = 'Clear';
+                } else if (time == 'clear') {
+                  weather_condition = 'Sunny';
+                } else if (time == 'partlycloudy') {
+                  weather_condition = 'Partly Cloudy';
+                } else {
+                  weather_condition = states["weather.home"].state;
+                }
+
+                return weather_condition;
+              ]]]
+            icon: |
+              [[[
+                var weather = states["weather.home"].state;
+
+                if (weather == 'partlycloudy' && states['sun.sun'].state == 'below_horizon') {
+                  return '<img src="https://homeassistant.morganserver.com/local/weather_icons/partly-cloudy-night.svg" width="90" height="90" />';
+                } else {
+                  return '<img src="https://homeassistant.morganserver.com/local/weather_icons/' + weather + '.svg" width="90" height="90" />';
+                }
+              ]]]
+          styles:
+            grid:
+              - grid-template-areas: |
+                  "icon"
+                  "temp"
+                  "cond"
+              - justify-items: center
+              - align-items: center
+            card:
+              - height: auto
+              - display: grid
+              - place-items: center
+              - box-shadow: none
+            custom_fields:
+              temp:
+                - font-size: 22pt
+                - font-weight: 700
+                - text-align: center
+              cond:
+                - font-size: 15pt
+                - text-transform: capitalize
+                - color: gray
+                - text-align: center
+              icon:
+                - margin-bottom: 10%
+                - display: flex
+                - justify-content: center
+                - align-items: center
+        - type: conditional
+          condition: and
+          conditions:
+            - condition: state
+              entity: media_player.kabootlers_spotify
+              state_not: idle
+            - condition: state
+              entity: media_player.kabootlers_spotify
+              state_not: unavailable
+          card:
+            type: custom:bubble-card
+            card_type: media-player
+            entity: media_player.kabootlers_spotify
+            hide:
+              volume_button: true
+              power_button: true
+              next_button: true
+              previous_button: true
+  hideTopMenu: true
+  style: |
+    :host{
+      --sidebar-background: var(--ha-card-background,var(--card-background-color,#fff));
+    }
+    :host .digitalClock{
+      font-family: sans-serif;
+      font-weight: 500;
+      text-align: center;
+    }
+    :host .date{
+      font-size: 18px;
+      text-align: center;
+    }
+    :host .bottom layout-card{
+      width: 100%;
+    }
+views:
+  - title: Overview
+    path: overview
+    type: sections
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: Indoor Climate
+            heading_style: title
+            icon: ''
+          - graph: line
+            type: sensor
+            detail: 1
+            entity: sensor.thermostat_air_temperature
+            name: Temperature
+            hours_to_show: 24
+          - graph: line
+            type: sensor
+            detail: 1
+            name: Humidity
+            hours_to_show: 24
+            entity: sensor.thermostat_humidity
+          - type: custom:mushroom-climate-card
+            entity: climate.thermostat
+            name: Thermostat
+            hvac_modes:
+              - cool
+              - 'off'
+              - heat
+              - heat_cool
+            layout: horizontal
+            show_temperature_control: false
+            tap_action:
+              action: more-info
+      - type: grid
+        cards:
+          - type: heading
+            heading: Security
+            heading_style: title
+            icon: ''
+          - type: custom:mushroom-alarm-control-panel-card
+            entity: alarm_control_panel.alarmo
+            states:
+              - armed_home
+              - armed_away
+              - armed_night
+              - armed_vacation
+            layout: horizontal
+            name: Security
+          - type: horizontal-stack
+            cards:
+              - type: custom:mushroom-template-card
+                primary: Front Door
+                secondary: |-
+                  {% if is_state("lock.front_door", "locked") %}
+                    Locked
+                  {%else%}
+                    Unlocked
+                  {%endif%}
+                icon: |-
+                  {% if is_state("lock.front_door", "locked") %}
+                    mdi:lock
+                  {%else%}
+                    mdi:lock-open-variant
+                  {%endif%}
+                layout: vertical
+                entity: lock.front_door
+                icon_color: |-
+                  {% if is_state("lock.front_door", "locked") %}
+                    green
+                  {%else%}
+                    red
+                  {%endif%}
+                badge_icon: ''
+                badge_color: ''
+                tap_action:
+                  action: toggle
+                hold_action:
+                  action: none
+                double_tap_action:
+                  action: none
+                card_mod:
+                  style: |
+                    :host {
+                      --mush-icon-size: 64px;
+                    }
+              - type: custom:mushroom-template-card
+                primary: Front Porch Light
+                secondary: |-
+                  {% if is_state("light.front_porch_light", "on") %}
+                    On
+                  {%else%}
+                    Off
+                  {%endif%}
+                icon: |-
+                  {% if is_state("light.front_porch_light", "on") %}
+                    mdi:lightbulb-on
+                  {%else%}
+                    mdi:lightbulb-outline
+                  {%endif%}
+                layout: vertical
+                entity: light.front_porch_light
+                icon_color: ''
+                badge_icon: ''
+                badge_color: ''
+                tap_action:
+                  action: toggle
+                hold_action:
+                  action: none
+                double_tap_action:
+                  action: none
+                card_mod:
+                  style: |
+                    :host {
+                      --mush-icon-size: 64px;
+                      --mush-badge-size: 20px;
+                    }
+                    mushroom-shape-icon {
+                      --shape-color: {% if is_state("light.front_porch_light", "on") %} rgba({{ state_attr('light.front_porch_light', 'rgb_color') | join(', ') }}, 0.2) !important; {% else %}{% endif %}
+                      --icon-color: {% if is_state("light.front_porch_light", "on") %} rgb({{ state_attr('light.front_porch_light', 'rgb_color') | join(', ') }}) !important; {% else %}{% endif %}
+                    }
+      - type: grid
+        cards:
+          - type: heading
+            heading: Rooms & Areas
+            heading_style: title
+            icon: ''
+          - type: custom:mushroom-template-card
+            primary: Foyer
+            secondary: >-
+              {{ (states('sensor.thermostat_hallway_temperature_current') |
+              round(1)) | string + " °F" }} / {{
+              (states('sensor.thermostat_hallway_humidity_current') | round(1))
+              | string + "%" }}
+            icon: mdi:home-import-outline
+            tap_action:
+              action: navigate
+              navigation_path: '#foyer'
+            icon_color: |-
+              {% if is_state('light.all_hallway_lights', 'on') %}
+                orange
+              {% endif %}
+          - type: custom:mushroom-template-card
+            primary: Living
+            secondary: >-
+              {{ (states('sensor.thermostat_living_room_temperature_current') |
+              round(1)) | string + " °F" }} / {{
+              (states('sensor.thermostat_living_room_humidity_current') |
+              round(1)) | string + "%" }}
+            icon: mdi:sofa
+            tap_action:
+              action: navigate
+              navigation_path: '#living'
+            icon_color: |-
+              {% if is_state('light.all_living_room_lights', 'on') %}
+                orange
+              {% endif %}
+            badge_icon: ''
+            badge_color: ''
+          - type: custom:mushroom-template-card
+            primary: Kitchen
+            secondary: >-
+              {{ (states('sensor.thermostat_dining_room_temperature_current') |
+              round(1)) | string + " °F" }} / {{
+              (states('sensor.thermostat_dining_room_humidity_current') |
+              round(1)) | string + "%" }}
+            icon: mdi:chef-hat
+            tap_action:
+              action: navigate
+              navigation_path: '#kitchen'
+            icon_color: |-
+              {% if is_state('light.all_kitchen_lights', 'on') %}
+                orange
+              {% endif %}
+            badge_icon: >-
+              {% if
+              is_state('binary_sensor.kitchen_multisensor_motion_detection',
+              'on') %}
+                mdi:run
+              {% endif %}
+            badge_color: >-
+              {% if
+              is_state('binary_sensor.kitchen_multisensor_motion_detection',
+              'on') %}
+                blue
+              {% endif %}
+            multiline_secondary: false
+            fill_container: false
+          - type: custom:mushroom-template-card
+            primary: Primary Bed
+            secondary: >-
+              {{ (states('sensor.thermostat_main_bedroom_temperature_current') |
+              round(1)) | string + " °F" }} / {{
+              (states('sensor.thermostat_main_bedroom_humidity_current') |
+              round(1)) | string + "%" }}
+            icon: mdi:bed-king
+            icon_color: |
+              {% if states('sensor.primary_bed_lights_on') | int >= 1 %}
+                orange
+              {% elif states('sensor.primary_bed_switches_on') | int >= 1 %}
+                blue
+              {% else %}
+                disabled
+              {% endif %}
+            tap_action:
+              action: navigate
+              navigation_path: '#primary-bed'
+            badge_icon: |-
+              {% if is_state('binary_sensor.bed_occupancy', 'on') %}
+                mdi:sleep
+              {% endif %}
+            badge_color: |-
+              {% if is_state('binary_sensor.bed_occupancy', 'on') %}
+                purple
+              {% endif %}
+          - type: custom:mushroom-template-card
+            primary: Flex Room
+            secondary: ''
+            icon: mdi:dog
+            tap_action:
+              action: navigate
+              navigation_path: '#flex'
+            icon_color: |-
+              {% if is_state('light.all_basement_lights', 'on') %}
+                orange
+              {% endif %}
+          - type: custom:mushroom-template-card
+            primary: Office
+            secondary: >-
+              {{ (states('sensor.thermostat_office_temperature_current') |
+              round(1)) | string + " °F" }} / {{
+              (states('sensor.thermostat_office_humidity_current') | round(1)) |
+              string + "%" }}
+            icon: mdi:briefcase
+            tap_action:
+              action: navigate
+              navigation_path: '#office'
+            icon_color: |-
+              {% if states('sensor.office_lights_on') | int >= 1 %}
+                orange
+              {% endif %}
+          - type: custom:mushroom-template-card
+            primary: Garage
+            secondary: ''
+            icon: |-
+              {% if is_state('cover.garage_door', 'open') %}
+                mdi:garage-open
+              {% else %}
+                mdi:garage
+              {% endif %}
+            tap_action:
+              action: navigate
+              navigation_path: '#garage'
+            icon_color: |-
+              {% if is_state('cover.garage_door', 'open') %}
+                red
+              {% elif is_state('light.all_garage_lights', 'on') %}
+                orange
+              {% endif %}
+            badge_color: ''
+            badge_icon: ''
+          - type: custom:mushroom-template-card
+            primary: Outdoor
+            secondary: >-
+              {{ (state_attr('weather.pirateweather', 'temperature') | round(1))
+              | string + " °F" }} / {{ (state_attr('weather.pirateweather',
+              'humidity') | round(1)) | string + "%" }}
+            icon: mdi:tree-outline
+            tap_action:
+              action: navigate
+              navigation_path: '#outdoor'
+            icon_color: |-
+              {% if states('sensor.outdoor_lights_on') | int >= 1 %}
+                orange
+              {% endif %}
+      - type: grid
+        cards:
+          - type: heading
+            heading: Modes
+            heading_style: title
+            icon: ''
+          - type: tile
+            tap_action:
+              action: toggle
+            entity: input_boolean.sleep_mode
+            color: purple
+          - type: tile
+            entity: input_boolean.eco_mode
+            tap_action:
+              action: toggle
+            color: green
+          - type: tile
+            tap_action:
+              action: toggle
+            entity: input_boolean.guest_mode
+            color: teal
+          - type: tile
+            tap_action:
+              action: toggle
+            entity: input_boolean.away_mode
+            color: primary
+          - type: custom:mushroom-template-card
+            primary: Focus Mode
+            secondary: '{{ state_translated(''input_boolean.focus_mode'') }}'
+            icon: mdi:bullseye-arrow
+            tap_action:
+              action: navigate
+              navigation_path: '#focus-mode'
+            icon_color: |-
+              {% if is_state('input_boolean.focus_mode', 'on') %}
+                yellow
+              {% endif %}
+            entity: input_boolean.focus_mode
+            card_mod:
+              style: |
+                ha-state-icon{
+                  animation: {% if is_state('input_boolean.party_mode', 'on') %} wiggle 0.18s linear infinite;
+                             {% else %} none;
+                             {% endif %}      
+                }
+                @keyframes wiggle{
+                  0% {
+                webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+                  }
+                  25% {
+                webkit-transform: rotate(5deg);
+                transform: rotate(5deg);
+                  }
+                  50% {
+                webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+                  }
+                  75% {
+                webkit-transform: rotate(-5deg);
+                transform: rotate(-5deg);
+                  }
+                  100% {
+                webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+                  }
+                }
+          - type: tile
+            tap_action:
+              action: toggle
+            color: deep-orange
+            entity: input_boolean.vacation_mode
+          - type: custom:mushroom-template-card
+            primary: Party Mode
+            secondary: '{{ state_translated(''input_boolean.party_mode'') }}'
+            icon: mdi:party-popper
+            tap_action:
+              action: navigate
+              navigation_path: '#party-mode'
+            icon_color: |-
+              {% if is_state('input_boolean.party_mode', 'on') %}
+                pink
+              {% endif %}
+            card_mod:
+              style: |
+                ha-state-icon{
+                  animation: {% if is_state('input_boolean.party_mode', 'on') %} wiggle 0.18s linear infinite;
+                             {% else %} none;
+                             {% endif %}      
+                }
+                @keyframes wiggle{
+                  0% {
+                webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+                  }
+                  25% {
+                webkit-transform: rotate(5deg);
+                transform: rotate(5deg);
+                  }
+                  50% {
+                webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+                  }
+                  75% {
+                webkit-transform: rotate(-5deg);
+                transform: rotate(-5deg);
+                  }
+                  100% {
+                webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+                  }
+                }
+      - type: grid
+        cards:
+          - type: heading
+            heading: Appliances
+            heading_style: title
+            icon: ''
+          - type: custom:mushroom-template-card
+            primary: Washer
+            secondary: >-
+              {{ states('sensor.washer_status') }} {% if
+              is_state('sensor.washer_status', 'Washing') or
+              is_state('sensor.washer_status', 'Rinsing') or
+              is_state('sensor.washer_status', 'Spinning') or
+              is_state('sensor.washer_status', 'Preparing') %}- {% set
+              remaining_seconds =
+              (as_timestamp(states('sensor.washer_washer_completion_time'))-as_timestamp(now()))|int
+              %} {% set remaining_minutes = (remaining_seconds // 60) %}  {{
+              remaining_minutes }}m {% endif %}
+            icon: mdi:washing-machine
+            icon_color: >-
+              {% if is_state('sensor.washer_status', 'Washing') or
+              is_state('sensor.washer_status', 'Rinsing') or
+              is_state('sensor.washer_status', 'Spinning') or
+              is_state('sensor.washer_status', 'Preparing') %}
+                blue
+              {% elif is_state('sensor.washer_status', 'Paused') %}
+                orange
+              {% elif is_state('sensor.washer_status', 'Finished') %}
+                green
+              {% endif %}
+            tap_action:
+              action: navigate
+              navigation_path: '#washer'
+            entity: sensor.washer_time_remaining
+            card_mod:
+              style: |
+                ha-state-icon{
+                  animation: {% if is_state('sensor.washer_status', 'Preparing') or is_state('sensor.washer_status', 'Washing') or is_state('sensor.washer_status', 'Rinsing') or is_state('sensor.washer_status', 'Spinning') %} wiggle 0.4s linear infinite;
+                             {% elif is_state('sensor.washer_status', 'Unknown') or is_state('sensor.washer_status', 'Paused') %} blink 0.5s linear infinite;
+                             {% else %} none;
+                             {% endif %}      
+                }
+                @keyframes blink{
+                    0%, 100% {opacity: 1;}
+                    50% {opacity: 0;}
+                }
+                @keyframes wiggle{
+                  0% {
+                webkit-transform: translate(0, 0) rotate(0deg);
+                transform: translate(0, 0) rotate(0deg);
+                  }
+                  25% {
+                webkit-transform: translate(1px, 1px) rotate(5deg);
+                transform: translate(1px, 1px) rotate(5deg);
+                  }
+                  50% {
+                webkit-transform: translate(0, 0) rotate(0deg);
+                transform: translate(0, 0) rotate(0deg);
+                  }
+                  75% {
+                webkit-transform: translate(-1px, 1px) rotate(-5deg);
+                transform: translate(-1px, 1px) rotate(-5deg);
+                  }
+                  100% {
+                webkit-transform: translate(0, 0) rotate(0deg);
+                transform: translate(0, 0) rotate(0deg);
+                  }
+                }
+          - type: custom:mushroom-template-card
+            primary: Dryer
+            secondary: >-
+              {{ states('sensor.dryer_status') }}{% if
+              is_state('sensor.dryer_status', 'Drying') or
+              is_state('sensor.dryer_status', 'Cooling') %} - {% set
+              remaining_seconds =
+              (as_timestamp(states('sensor.dryer_dryer_completion_time'))-as_timestamp(now()))|int
+              %} {% set remaining_minutes = (remaining_seconds // 60) %} {{
+              remaining_minutes }}m {% endif %}
+            icon: mdi:tumble-dryer
+            icon_color: |-
+              {% if is_state('sensor.dryer_status', 'Drying') %}
+                red
+              {% elif is_state('sensor.dryer_status', 'Cooling') %}
+                blue
+              {% elif is_state('sensor.dryer_status', 'Paused') %}
+                orange
+              {% elif is_state('sensor.dryer_status', 'Finished') %}
+                green
+              {% endif %}
+            tap_action:
+              action: navigate
+              navigation_path: '#dryer'
+            entity: sensor.dryer_status
+            card_mod:
+              style: |
+                ha-state-icon{
+                  animation: {% if is_state('sensor.dryer_status', 'Drying') or is_state('sensor.dryer_status', 'Cooling') %} wiggle 0.4s linear infinite;
+                             {% elif is_state('sensor.dryer_status', 'Unknown') or is_state('sensor.dryer_status', 'Paused') %} blink 2s linear infinite;
+                             {% else %} none;
+                             {% endif %}      
+                }
+                @keyframes blink{}
+                @keyframes wiggle{
+                  0% {
+                webkit-transform: translate(0, 0) rotate(0deg);
+                transform: translate(0, 0) rotate(0deg);
+                  }
+                  25% {
+                webkit-transform: translate(1px, 1px) rotate(5deg);
+                transform: translate(1px, 1px) rotate(5deg);
+                  }
+                  50% {
+                webkit-transform: translate(0, 0) rotate(0deg);
+                transform: translate(0, 0) rotate(0deg);
+                  }
+                  75% {
+                webkit-transform: translate(-1px, 1px) rotate(-5deg);
+                transform: translate(-1px, 1px) rotate(-5deg);
+                  }
+                  100% {
+                webkit-transform: translate(0, 0) rotate(0deg);
+                transform: translate(0, 0) rotate(0deg);
+                  }
+                }
+          - type: custom:mushroom-template-card
+            primary: Tony Shark
+            secondary: |-
+              {% if is_state('input_boolean.vacuum_status','on') %}
+              Docked
+              {% else %}
+              Vacuuming
+              {% endif %}
+            icon: mdi:robot-vacuum
+            entity: input_boolean.vacuum_status
+            icon_color: |-
+              {% if is_state('input_boolean.vacuum_status','on') %}
+              blue
+              {% else %}
+              disabled
+              {% endif %}
+            tap_action:
+              action: toggle
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+      - type: grid
+        cards:
+          - type: heading
+            heading: Reminders
+            heading_style: title
+            icon: ''
+          - type: vertical-stack
+            cards:
+              - type: conditional
+                conditions:
+                  - condition: state
+                    entity: input_boolean.reminder_bring_in_garbage_bins
+                    state: 'on'
+                card:
+                  type: custom:mushroom-template-card
+                  primary: Bring in trash bins!
+                  secondary: ''
+                  icon: mdi:trash-can-outline
+                  entity: input_boolean.reminder_bring_in_garbage_bins
+                  icon_color: red
+                  tap_action:
+                    action: perform-action
+                    perform_action: input_boolean.turn_off
+                    target:
+                      entity_id: input_boolean.reminder_bring_in_garbage_bins
+                  hold_action:
+                    action: none
+                  double_tap_action:
+                    action: none
+              - type: conditional
+                conditions:
+                  - condition: state
+                    entity: input_boolean.reminder_take_out_garbage_bins
+                    state: 'on'
+                card:
+                  type: custom:mushroom-template-card
+                  primary: Put out trash bins!
+                  secondary: ''
+                  icon: mdi:trash-can
+                  entity: input_boolean.reminder_take_out_garbage_bins
+                  icon_color: amber
+                  tap_action:
+                    action: perform-action
+                    perform_action: input_boolean.turn_off
+                    target:
+                      entity_id: input_boolean.reminder_take_out_garbage_bins
+                  hold_action:
+                    action: none
+                  double_tap_action:
+                    action: none
+          - type: vertical-stack
+            cards:
+              - type: conditional
+                conditions:
+                  - condition: state
+                    entity: input_boolean.reminder_bring_in_garbage_bins
+                    state: 'off'
+                  - condition: state
+                    entity: input_boolean.reminder_take_out_garbage_bins
+                    state: 'off'
+                card:
+                  type: custom:mushroom-title-card
+                  title: ''
+                  subtitle: No current reminders! 🎉
+                  alignment: center
+                  title_tap_action:
+                    action: none
+                  subtitle_tap_action:
+                    action: none
+      - type: grid
+        cards:
+          - type: vertical-stack
+            cards:
+              - type: custom:bubble-card
+                card_type: pop-up
+                hash: '#party-mode'
+              - type: custom:mushroom-title-card
+                title: Party Mode
+                subtitle: Let's get the party started!
+              - type: custom:bubble-card
+                card_type: select
+                entity: input_select.party_music
+                show_state: true
+                show_attribute: false
+                attribute: options
+                show_last_changed: false
+                force_icon: false
+                show_icon: true
+                scrolling_effect: true
+              - type: conditional
+                conditions:
+                  - condition: state
+                    entity: input_boolean.party_mode
+                    state: 'off'
+                card:
+                  type: custom:bubble-card
+                  card_type: button
+                  tap_action:
+                    action: call-service
+                    target:
+                      entity_id: input_boolean.party_mode
+                    service: input_boolean.turn_on
+                  entity: input_boolean.party_mode
+                  name: Start the Party
+                  styles: |2-
+                        .bubble-icon{
+                          animation: wiggle 0.18s linear infinite;    
+                        }
+                        @keyframes wiggle{
+                          0% {
+                        webkit-transform: rotate(0deg);
+                        transform: rotate(0deg);
+                          }
+                          25% {
+                        webkit-transform: rotate(5deg);
+                        transform: rotate(5deg);
+                          }
+                          50% {
+                        webkit-transform: rotate(0deg);
+                        transform: rotate(0deg);
+                          }
+                          75% {
+                        webkit-transform: rotate(-5deg);
+                        transform: rotate(-5deg);
+                          }
+                          100% {
+                        webkit-transform: rotate(0deg);
+                        transform: rotate(0deg);
+                          }
+                        }
+                        .bubble-button-card-container {
+                          background: var(--pink-color) !important;
+                        }
+                        .bubble-icon{
+                          color: var(--pink-color) !important;
+                        }
+                        .bubble-icon-container{
+                          background-color: rgba(0,0,0,0.6) !important;
+                        }
+                  button_action:
+                    tap_action:
+                      action: call-service
+                      service: input_boolean.turn_on
+                      target:
+                        entity_id: input_boolean.party_mode
+              - type: conditional
+                conditions:
+                  - condition: state
+                    entity: input_boolean.party_mode
+                    state: 'on'
+                card:
+                  type: custom:bubble-card
+                  card_type: button
+                  tap_action:
+                    action: call-service
+                    target:
+                      entity_id: input_boolean.party_mode
+                    service: input_boolean.turn_off
+                  entity: input_boolean.party_mode
+                  name: End the Party
+                  styles: ''
+                  button_action:
+                    tap_action:
+                      action: call-service
+                      service: input_boolean.turn_off
+                      target:
+                        entity_id: input_boolean.party_mode
+      - type: grid
+        cards:
+          - type: vertical-stack
+            cards:
+              - type: custom:bubble-card
+                card_type: pop-up
+                hash: '#focus-mode'
+              - type: custom:mushroom-title-card
+                title: Focus Mode
+                subtitle: Set Focus Time to zero for no time limit.
+              - type: custom:bubble-card
+                card_type: button
+                entity: input_number.focus_time
+                button_type: state
+              - type: conditional
+                conditions:
+                  - condition: state
+                    entity: input_boolean.focus_mode
+                    state: 'off'
+                card:
+                  type: custom:bubble-card
+                  card_type: button
+                  tap_action:
+                    action: call-service
+                    target: {}
+                    service: script.focus_mode_start
+                  name: Start the Focus
+                  styles: |
+
+                    .bubble-button-card-container {
+                      background: var(--orange-color) !important;
+                    }
+                    .bubble-icon{
+                      color: var(--orange-color) !important;
+                    }
+                    .bubble-icon-container{
+                      background-color: rgba(0,0,0,0.6) !important;
+                    }
+                  button_action:
+                    tap_action:
+                      action: call-service
+                      service: script.focus_mode_start
+                      target: {}
+                  entity: script.focus_mode_start
+              - type: conditional
+                conditions:
+                  - condition: state
+                    entity: input_boolean.focus_mode
+                    state: 'on'
+                  - condition: numeric_state
+                    entity: input_number.focus_time
+                    above: 0
+                card:
+                  type: custom:bubble-card
+                  card_type: button
+                  tap_action:
+                    action: call-service
+                    target:
+                      entity_id: timer.focus_mode_timer
+                    service: timer.cancel
+                  name: End the Focus
+                  styles: ''
+                  button_action:
+                    tap_action:
+                      action: call-service
+                      service: timer.cancel
+                      target:
+                        entity_id: timer.focus_mode_timer
+                  button_type: name
+                  icon: mdi:bullseye-arrow
+      - type: grid
+        cards:
+          - type: vertical-stack
+            cards:
+              - type: custom:bubble-card
+                card_type: pop-up
+                hash: '#office'
+              - type: custom:mushroom-title-card
+                title: Office
+                subtitle: So work or play?...or both?
+              - type: horizontal-stack
+                cards:
+                  - type: custom:mini-graph-card
+                    name: Temperature
+                    entities:
+                      - entity: sensor.thermostat_air_temperature
+                    hours_to_show: 24
+                    points_per_hour: 1
+                    animate: true
+                  - type: custom:mini-graph-card
+                    name: Humidity
+                    entities:
+                      - entity: sensor.thermostat_humidity
+                    hours_to_show: 24
+                    points_per_hour: 1
+                    animate: true
+              - type: custom:mushroom-title-card
+                title: ''
+                subtitle: Lights
+              - type: horizontal-stack
+                cards:
+                  - type: custom:bubble-card
+                    card_type: button
+                    entity: light.desk_light
+                    name: Desk Light
+                    show_state: true
+                    button_type: slider
+                    tap_action:
+                      action: toggle
+                    show_icon: true
+                    use_accent_color: false
+                    force_icon: false
+                    show_last_changed: false
+                    show_attribute: false
+                    slider_live_update: false
+                    scrolling_effect: true
+                    show_name: true
+                  - type: custom:bubble-card
+                    card_type: button
+                    name: Under Desk LEDs
+                    show_state: true
+                    button_type: slider
+                    entity: light.desk_light_strip
+                    tap_action:
+                      action: toggle
+                    icon: mdi:led-strip-variant
+              - type: custom:mushroom-title-card
+                title: ''
+                subtitle: Outlets
+              - type: horizontal-stack
+                cards:
+                  - type: custom:bubble-card
+                    card_type: button
+                    name: Office Lamp
+                    show_state: true
+                    button_type: switch
+                    tap_action:
+                      action: toggle
+                    entity: switch.smart_plug
+                    icon: mdi:floor-lamp
+                    show_last_changed: false
+      - type: grid
+        cards:
+          - type: vertical-stack
+            cards:
+              - type: custom:bubble-card
+                card_type: pop-up
+                hash: '#living'
+              - type: custom:mushroom-title-card
+                title: Living Room
+                subtitle: Cue the chaos, crank the music!
+              - type: horizontal-stack
+                cards:
+                  - type: custom:mini-graph-card
+                    name: Temperature
+                    entities:
+                      - entity: sensor.thermostat_air_temperature
+                    hours_to_show: 24
+                    points_per_hour: 1
+                    animate: true
+                  - type: custom:mini-graph-card
+                    name: Humidity
+                    entities:
+                      - entity: sensor.thermostat_humidity
+                    hours_to_show: 24
+                    points_per_hour: 1
+                    animate: true
+              - type: custom:bubble-card
+                entity: climate.thermostat
+                card_type: button
+                name: Thermostat
+                show_attribute: true
+                attribute: current_temperature
+                button_type: state
+                sub_button: []
+              - type: custom:mushroom-title-card
+                title: ''
+                subtitle: Media
+                title_tap_action:
+                  action: none
+                subtitle_tap_action:
+                  action: none
+              - type: horizontal-stack
+                cards:
+                  - type: custom:bubble-card
+                    card_type: button
+                    name: Apple TV
+                    show_state: true
+                    button_type: slider
+                    entity: media_player.main_tv_2
+                    tap_action:
+                      action: toggle
+                    icon: mdi:television
+                    show_icon: true
+                    show_attribute: false
+                    attribute: app_name
+                    slider_live_update: false
+                  - type: custom:bubble-card
+                    card_type: button
+                    name: Television
+                    show_state: true
+                    button_type: slider
+                    entity: media_player.living_room_tv
+                    icon: mdi:television
+                    tap_action:
+                      action: toggle
+      - type: grid
+        cards:
+          - type: vertical-stack
+            cards:
+              - type: custom:bubble-card
+                card_type: pop-up
+                hash: '#kitchen'
+              - type: custom:mushroom-title-card
+                title: Kitchen
+                subtitle: Cookin up some goods, ey?
+              - type: horizontal-stack
+                cards:
+                  - type: custom:mini-graph-card
+                    name: Temperature
+                    entities:
+                      - entity: sensor.thermostat_air_temperature
+                    hours_to_show: 24
+                    points_per_hour: 1
+                    animate: true
+                  - type: custom:mini-graph-card
+                    name: Humidity
+                    entities:
+                      - entity: sensor.thermostat_humidity
+                    hours_to_show: 24
+                    points_per_hour: 1
+                    animate: true
+              - type: custom:bubble-card
+                entity: climate.thermostat
+                card_type: button
+                name: Thermostat
+                show_attribute: true
+                attribute: current_temperature
+                button_type: state
+                sub_button: []
+              - type: custom:mushroom-title-card
+                title: ''
+                subtitle: Outlets
+              - type: horizontal-stack
+                cards:
+                  - type: custom:bubble-card
+                    card_type: button
+                    name: Wall Tablet Charger
+                    show_state: true
+                    button_type: state
+                    tap_action:
+                      action: toggle
+                    entity: switch.wall_tablet_charger_outlet
+              - type: custom:mushroom-title-card
+                title: ''
+                subtitle: Sensors
+              - type: horizontal-stack
+                cards:
+                  - type: custom:bubble-card
+                    card_type: button
+                    name: Under Sink Water Leak Sensor
+                    show_state: true
+                    button_type: state
+                    tap_action:
+                      action: toggle
+                    entity: binary_sensor.sink_leak_sensor_waterleak
+      - type: grid
+        cards:
+          - type: vertical-stack
+            cards:
+              - type: custom:bubble-card
+                card_type: pop-up
+                hash: '#guest-bed'
+              - type: custom:mushroom-title-card
+                title: Guest Bed
+                subtitle: Make yourself at home… but not too at home.
+              - type: horizontal-stack
+                cards:
+                  - type: custom:mini-graph-card
+                    name: Temperature
+                    entities:
+                      - entity: sensor.thermostat_air_temperature
+                    hours_to_show: 24
+                    points_per_hour: 1
+                    animate: true
+                  - type: custom:mini-graph-card
+                    name: Humidity
+                    entities:
+                      - entity: sensor.thermostat_humidity
+                    hours_to_show: 24
+                    points_per_hour: 1
+                    animate: true
+              - type: custom:bubble-card
+                entity: climate.thermostat
+                card_type: button
+                name: Thermostat
+                show_attribute: true
+                attribute: current_temperature
+                button_type: state
+                sub_button: []
+              - type: custom:mushroom-title-card
+                title: ''
+                subtitle: Lights
+              - type: horizontal-stack
+                cards: []
+      - type: grid
+        cards:
+          - type: vertical-stack
+            cards:
+              - type: custom:bubble-card
+                card_type: pop-up
+                hash: '#foyer'
+              - type: custom:mushroom-title-card
+                title: Foyer
+                subtitle: Welcome to your local liminal space
+              - type: horizontal-stack
+                cards:
+                  - type: custom:mini-graph-card
+                    name: Temperature
+                    entities:
+                      - entity: sensor.thermostat_air_temperature
+                    hours_to_show: 24
+                    points_per_hour: 1
+                    animate: true
+                  - type: custom:mini-graph-card
+                    name: Humidity
+                    entities:
+                      - entity: sensor.thermostat_humidity
+                    hours_to_show: 24
+                    points_per_hour: 1
+                    animate: true
+              - type: custom:bubble-card
+                entity: climate.thermostat
+                card_type: button
+                name: Thermostat
+                show_attribute: true
+                attribute: current_temperature
+                button_type: state
+                sub_button: []
+              - type: custom:bubble-card
+                entity: lock.front_door
+                card_type: button
+                name: Front Door
+                show_attribute: true
+                attribute: current_temperature
+                button_type: state
+                sub_button: []
+              - type: custom:mushroom-title-card
+                title: ''
+                subtitle: Lights
+              - type: horizontal-stack
+                cards:
+                  - type: custom:bubble-card
+                    card_type: button
+                    name: ''
+                    show_state: true
+                    button_type: slider
+                    entity: light.front_porch_light
+                    tap_action:
+                      action: toggle
+              - type: custom:mushroom-title-card
+                title: ''
+                subtitle: Camera
+              - show_state: true
+                show_name: true
+                camera_view: live
+                type: picture-entity
+                entity: camera.front_door_live_view
+                camera_image: camera.front_door_live_view
+      - type: grid
+        cards:
+          - type: vertical-stack
+            cards:
+              - type: custom:bubble-card
+                card_type: pop-up
+                hash: '#outdoor'
+              - type: custom:mushroom-title-card
+                title: Outdoor
+                subtitle: Is it grilling season or relaxing under the stars?
+              - type: horizontal-stack
+                cards:
+                  - type: custom:mini-graph-card
+                    name: Temperature
+                    entities:
+                      - entity: sensor.pirateweather_temperature
+                    hours_to_show: 24
+                    points_per_hour: 1
+                    animate: true
+                  - type: custom:mini-graph-card
+                    name: Humidity
+                    icon: mdi:water-percent
+                    entities:
+                      - entity: weather.pirateweather
+                        attribute: humidity
+                        name: Humidity
+                        unit: '%'
+                    hours_to_show: 24
+                    points_per_hour: 1
+                    animate: true
+              - type: custom:mushroom-title-card
+                title: ''
+                subtitle: Cameras
+              - show_state: true
+                show_name: true
+                camera_view: live
+                type: picture-entity
+                entity: camera.back_door
+                camera_image: camera.back_door
+      - type: grid
+        cards:
+          - type: vertical-stack
+            cards:
+              - type: custom:bubble-card
+                card_type: pop-up
+                hash: '#garage'
+              - type: custom:mushroom-title-card
+                title: Garage
+                subtitle: Oh, you must think you're some sort of Dom Toretto...
+              - type: custom:bubble-card
+                card_type: button
+                name: Garage Door
+                show_attribute: true
+                attribute: current_position
+                button_type: state
+                sub_button: []
+                entity: cover.garage_door
+              - type: custom:mushroom-title-card
+                title: ''
+                subtitle: Lights
+              - type: horizontal-stack
+                cards:
+                  - type: custom:bubble-card
+                    card_type: button
+                    name: Sconces
+                    show_state: true
+                    button_type: slider
+                    entity: light.garage_sconces
+                    tap_action:
+                      action: toggle
+      - type: grid
+        cards:
+          - type: vertical-stack
+            cards:
+              - type: custom:bubble-card
+                card_type: pop-up
+                hash: '#primary-bed'
+              - type: custom:mushroom-title-card
+                title: Primary Bed
+                subtitle: Oh...shall I dim the lights?
+              - type: horizontal-stack
+                cards:
+                  - type: custom:mini-graph-card
+                    name: Temperature
+                    entities:
+                      - entity: sensor.thermostat_air_temperature
+                    hours_to_show: 24
+                    points_per_hour: 1
+                    animate: true
+                  - type: custom:mini-graph-card
+                    name: Humidity
+                    entities:
+                      - entity: sensor.thermostat_humidity
+                    hours_to_show: 24
+                    points_per_hour: 1
+                    animate: true
+              - type: custom:bubble-card
+                entity: climate.thermostat
+                card_type: button
+                name: Thermostat
+                show_attribute: true
+                attribute: current_temperature
+                button_type: state
+                sub_button: []
+              - type: custom:mushroom-title-card
+                title: ''
+                subtitle: Outlets
+              - type: horizontal-stack
+                cards:
+                  - type: custom:bubble-card
+                    card_type: button
+                    name: Phone Charger
+                    show_state: true
+                    button_type: switch
+                    entity: switch.phone_charger
+                    tap_action:
+                      action: toggle
+                  - type: custom:bubble-card
+                    card_type: button
+                    name: Watch Charger
+                    show_state: true
+                    button_type: switch
+                    icon: mdi:led-strip-variant
+                    entity: switch.apple_watch_charger_outlet
+                    tap_action:
+                      action: toggle
+      - type: grid
+        cards:
+          - type: vertical-stack
+            cards:
+              - type: custom:bubble-card
+                card_type: pop-up
+                hash: '#washer'
+              - type: custom:mushroom-title-card
+                title: Washer
+                subtitle: Oh man...I sure hope that stain comes out!
+              - type: horizontal-stack
+                cards:
+                  - type: custom:mushroom-template-card
+                    primary: Status
+                    secondary: '{{ states(''sensor.washer_status'') }}'
+                    icon: mdi:washing-machine
+                    icon_color: >-
+                      {% if is_state('sensor.washer_status', 'Washing') or
+                      is_state('sensor.washer_status', 'Rinsing') or
+                      is_state('sensor.washer_status', 'Spinning') or
+                      is_state('sensor.washer_status', 'Preparing') %}
+                        blue
+                      {% elif is_state('sensor.washer_status', 'Paused') %}
+                        orange
+                      {% elif is_state('sensor.washer_status', 'Finished') %}
+                        green
+                      {% endif %}
+                    tap_action:
+                      action: more-info
+                    entity: sensor.washer_time_remaining
+                    card_mod:
+                      style: |
+                        ha-state-icon{
+                          animation: {% if is_state('sensor.washer_status', 'Preparing') or is_state('sensor.washer_status', 'Washing') or is_state('sensor.washer_status', 'Rinsing') or is_state('sensor.washer_status', 'Spinning') %} wiggle 0.4s linear infinite;
+                                     {% elif is_state('sensor.washer_status', 'Unknown') or is_state('sensor.washer_status', 'Paused') %} blink 0.5s linear infinite;
+                                     {% else %} none;
+                                     {% endif %}      
+                        }
+                        @keyframes blink{
+                            0%, 100% {opacity: 1;}
+                            50% {opacity: 0;}
+                        }
+                        @keyframes wiggle{
+                          0% {
+                        webkit-transform: translate(0, 0) rotate(0deg);
+                        transform: translate(0, 0) rotate(0deg);
+                          }
+                          25% {
+                        webkit-transform: translate(1px, 1px) rotate(5deg);
+                        transform: translate(1px, 1px) rotate(5deg);
+                          }
+                          50% {
+                        webkit-transform: translate(0, 0) rotate(0deg);
+                        transform: translate(0, 0) rotate(0deg);
+                          }
+                          75% {
+                        webkit-transform: translate(-1px, 1px) rotate(-5deg);
+                        transform: translate(-1px, 1px) rotate(-5deg);
+                          }
+                          100% {
+                        webkit-transform: translate(0, 0) rotate(0deg);
+                        transform: translate(0, 0) rotate(0deg);
+                          }
+                        }
+                  - type: conditional
+                    conditions:
+                      - condition: state
+                        entity: sensor.washer_status
+                        state_not: Idle
+                    card:
+                      type: custom:mushroom-template-card
+                      primary: Time Remaining
+                      secondary: >-
+                        {% set remaining_seconds =
+                        (as_timestamp(states('sensor.washer_washer_completion_time'))-as_timestamp(now()))|int
+                        %} {% set remaining_minutes = (remaining_seconds // 60)
+                        %}  {{ remaining_minutes }} minutes
+                      icon: mdi:clock
+                      icon_color: blue
+                      tap_action:
+                        action: more-info
+                      entity: sensor.washer_time_remaining
+              - type: horizontal-stack
+                cards:
+                  - graph: line
+                    type: sensor
+                    detail: 2
+                    entity: sensor.washer_energy
+                    hours_to_show: 12
+                    name: Energy Usage
+      - type: grid
+        cards:
+          - type: vertical-stack
+            cards:
+              - type: custom:bubble-card
+                card_type: pop-up
+                hash: '#dryer'
+              - type: custom:mushroom-title-card
+                title: Dryer
+                subtitle: Nobody wants damp underwear.
+              - type: horizontal-stack
+                cards:
+                  - type: custom:mushroom-template-card
+                    primary: Status
+                    secondary: '{{ states(''sensor.dryer_status'') }}'
+                    icon: mdi:tumble-dryer
+                    icon_color: |-
+                      {% if is_state('sensor.dryer_status', 'Drying') %}
+                        red
+                      {% elif is_state('sensor.dryer_status', 'Cooling') %}
+                        blue
+                      {% elif is_state('sensor.dryer_status', 'Paused') %}
+                        orange
+                      {% elif is_state('sensor.dryer_status', 'Finished') %}
+                        green
+                      {% endif %}
+                    tap_action:
+                      action: more-info
+                    entity: sensor.dryer_status
+                    card_mod:
+                      style: |
+                        ha-state-icon{
+                          animation: {% if is_state('sensor.dryer_status', 'Drying') or is_state('sensor.dryer_status', 'Cooling') %} wiggle 0.4s linear infinite;
+                                     {% elif is_state('sensor.dryer_status', 'Unknown') or is_state('sensor.dryer_status', 'Paused') %} blink 2s linear infinite;
+                                     {% else %} none;
+                                     {% endif %}      
+                        }
+                        @keyframes blink{}
+                        @keyframes wiggle{
+                          0% {
+                        webkit-transform: translate(0, 0) rotate(0deg);
+                        transform: translate(0, 0) rotate(0deg);
+                          }
+                          25% {
+                        webkit-transform: translate(1px, 1px) rotate(5deg);
+                        transform: translate(1px, 1px) rotate(5deg);
+                          }
+                          50% {
+                        webkit-transform: translate(0, 0) rotate(0deg);
+                        transform: translate(0, 0) rotate(0deg);
+                          }
+                          75% {
+                        webkit-transform: translate(-1px, 1px) rotate(-5deg);
+                        transform: translate(-1px, 1px) rotate(-5deg);
+                          }
+                          100% {
+                        webkit-transform: translate(0, 0) rotate(0deg);
+                        transform: translate(0, 0) rotate(0deg);
+                          }
+                        }
+                  - type: conditional
+                    conditions:
+                      - condition: state
+                        entity: sensor.dryer_status
+                        state_not: Idle
+                    card:
+                      type: custom:mushroom-template-card
+                      primary: Time Remaining
+                      secondary: >-
+                        {% set remaining_seconds =
+                        (as_timestamp(states('sensor.dryer_dryer_completion_time'))-as_timestamp(now()))|int
+                        %} {% set remaining_minutes = (remaining_seconds // 60)
+                        %}  {{ remaining_minutes }} minutes
+                      icon: mdi:clock
+                      icon_color: blue
+                      tap_action:
+                        action: more-info
+                      entity: sensor.washer_time_remaining
+              - type: horizontal-stack
+                cards:
+                  - graph: line
+                    type: sensor
+                    detail: 2
+                    hours_to_show: 12
+                    name: Energy Usage
+                    entity: sensor.dryer_energy
+      - type: grid
+        cards:
+          - type: vertical-stack
+            cards:
+              - type: custom:bubble-card
+                card_type: pop-up
+                hash: '#flex'
+              - type: custom:mushroom-title-card
+                title: Flex Room
+                subtitle: Will it be fetch time or a long cozy nap?
+              - type: horizontal-stack
+                cards:
+                  - type: custom:mini-graph-card
+                    name: Temperature
+                    entities:
+                      - entity: sensor.thermostat_air_temperature
+                    hours_to_show: 24
+                    points_per_hour: 1
+                    animate: true
+                  - type: custom:mini-graph-card
+                    name: Humidity
+                    entities:
+                      - entity: sensor.thermostat_humidity
+                    hours_to_show: 24
+                    points_per_hour: 1
+                    animate: true
+              - type: custom:bubble-card
+                entity: climate.thermostat
+                card_type: button
+                name: Thermostat
+                show_attribute: true
+                attribute: current_temperature
+                button_type: state
+                sub_button: []
+              - type: custom:mushroom-title-card
+                title: ''
+                subtitle: Media
+              - type: horizontal-stack
+                cards:
+                  - type: custom:mushroom-template-card
+                    primary: Flex Room
+                    secondary: >-
+                      {% if is_state("media_player.flex_room_speaker",
+                      "playing") %}
+                        {{ state_attr('media_player.flex_room_speaker', 'app_name') }} ({{ states('sensor.flex_room_speaker_volume') }}%)
+                      {%else%}
+                        Off
+                      {%endif%}
+                    icon: >-
+                      {% if is_state("media_player.flex_room_speaker",
+                      "playing") %}
+                        mdi:speaker
+                      {%else%}
+                        mdi:speaker-off
+                      {%endif%}
+                    icon_color: >-
+                      {% if is_state("media_player.flex_room_speaker",
+                      "playing") %}
+                        blue
+                      {%else%}
+                        disabled
+                      {%endif%}
+                    tap_action:
+                      action: perform-action
+                      perform_action: script.plex_media_server_play
+                      target: {}
+                    hold_action:
+                      action: perform-action
+                      perform_action: media_player.turn_off
+                      target:
+                        entity_id: media_player.flex_room_speaker
+                    double_tap_action:
+                      action: none
+                    entity: media_player.flex_room_speaker
+                    card_mod:
+                      style: |
+                        ha-card {
+                          border-radius: 50px !important;
+                          background-color: var(--bubble-button-main-background-color, var(--bubble-main-background-color, var(--background-color-2, var(--secondary-background-color))));
+                        }
+              - type: custom:mushroom-title-card
+                title: ''
+                subtitle: Camera
+              - type: custom:webrtc-camera
+                url: rtsp://192.168.1.175/live0
+                muted: true
+    cards: []
+    subview: false
+    layout: {}
+    max_columns: 3
+  - title: Security
+    path: security
+    type: sections
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: Cameras
+            heading_style: title
+          - show_state: true
+            show_name: true
+            camera_view: live
+            type: picture-entity
+            entity: camera.front_door_live_view
+            camera_image: camera.front_door_live_view
+          - type: custom:webrtc-camera
+            url: rtsp://192.168.1.175/live0
+            muted: true
+            background: true
+          - show_state: true
+            show_name: true
+            camera_view: live
+            type: picture-entity
+            entity: camera.back_door
+            camera_image: camera.back_door
+      - type: grid
+        cards:
+          - type: heading
+            heading: Door Sensors (Place holder)
+            heading_style: title
+  - title: Devices
+    path: devices
+    cards: []
+    type: sections
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: Lighting Controls
+          - type: custom:mushroom-template-card
+            primary: All Lights On
+            secondary: ''
+            icon: mdi:lightbulb-on
+            tap_action:
+              action: perform-action
+              perform_action: light.turn_on
+              target:
+                entity_id:
+                  - light.all_garage_lights
+                  - light.all_office_lights
+                  - light.all_hallway_lights
+                  - light.all_kitchen_lights
+                  - light.all_bedroom_lights
+                  - light.all_basement_lights
+                  - light.all_living_room_lights
+                  - light.all_main_bathroom_lights
+            icon_color: orange
+          - type: custom:mushroom-template-card
+            primary: All Lights Off
+            secondary: ''
+            icon: mdi:lightbulb-off
+            tap_action:
+              action: perform-action
+              perform_action: light.turn_off
+              target:
+                entity_id:
+                  - light.all_garage_lights
+                  - light.all_office_lights
+                  - light.all_hallway_lights
+                  - light.all_kitchen_lights
+                  - light.all_bedroom_lights
+                  - light.all_basement_lights
+                  - light.all_living_room_lights
+                  - light.all_main_bathroom_lights
+            icon_color: ''
+      - type: grid
+        cards:
+          - type: heading
+            heading: Lighting Themes
+          - type: custom:mushroom-template-card
+            primary: Light Mode
+            secondary: ''
+            icon: mdi:white-balance-sunny
+            tap_action:
+              action: perform-action
+              perform_action: input_select.select_option
+              data:
+                option: Light Mode
+              target:
+                entity_id: input_select.lighting_theme
+            icon_color: |-
+              {% if is_state('input_select.lighting_theme', 'Light Mode') %}
+                orange
+              {% endif %}
+            entity: input_select.lighting_theme
+            card_mod:
+              style: |
+                ha-state-icon{
+                  animation: {% if is_state('input_select.lighting_theme', 'Light Mode') %} spin 5s linear infinite;
+                             {% else %} none;
+                             {% endif %}      
+                }
+                @keyframes spin{
+                  0% {
+                webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+                  }
+                  100% {
+                webkit-transform: rotate(360deg);
+                transform: rotate(360deg);
+                  }
+                }
+          - type: custom:mushroom-template-card
+            primary: Dark Mode
+            secondary: ''
+            icon: mdi:moon-waxing-crescent
+            tap_action:
+              action: call-service
+              service: input_select.select_option
+              target:
+                entity_id: input_select.lighting_theme
+              data:
+                option: Dark Mode
+            icon_color: |-
+              {% if is_state('input_select.lighting_theme', 'Dark Mode') %}
+                purple
+              {% endif %}
+            entity: input_select.lighting_theme
+            card_mod:
+              style: |
+                ha-state-icon{
+                  animation: {% if is_state('input_select.lighting_theme', 'Dark Mode') %} wiggle 6s ease infinite;
+                             {% else %} none;
+                             {% endif %}  
+                }
+                @keyframes wiggle{
+                  0% {
+                webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+                  }
+                  25% {
+                webkit-transform: rotate(50deg);
+                transform: rotate(50deg);
+                  }
+                  50% {
+                webkit-transform: rotate(50deg);
+                transform: rotate(50deg);
+                  }
+                  75% {
+                webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+                  }
+                  100% {
+                webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+                  }
+                }
+          - type: custom:mushroom-template-card
+            primary: Party Mode
+            secondary: ''
+            icon: mdi:party-popper
+            tap_action:
+              action: call-service
+              service: input_select.select_option
+              target:
+                entity_id: input_select.lighting_theme
+              data:
+                option: Party Mode
+            icon_color: |-
+              {% if is_state('input_select.lighting_theme', 'Party Mode') %}
+                pink
+              {% endif %}
+            entity: input_select.lighting_theme
+            card_mod:
+              style: |
+                ha-state-icon{
+                  animation: {% if is_state('input_select.lighting_theme', 'Party Mode') %} wiggle 0.18s linear infinite;
+                             {% else %} none;
+                             {% endif %}      
+                }
+                @keyframes wiggle{
+                  0% {
+                webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+                  }
+                  25% {
+                webkit-transform: rotate(5deg);
+                transform: rotate(5deg);
+                  }
+                  50% {
+                webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+                  }
+                  75% {
+                webkit-transform: rotate(-5deg);
+                transform: rotate(-5deg);
+                  }
+                  100% {
+                webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+                  }
+                }
+      - type: grid
+        cards:
+          - type: heading
+            heading: Lighting Automations
+          - type: tile
+            entity: input_boolean.motion_activated_lighting_automations
+            name: Motion Lights
+            tap_action:
+              action: toggle
+          - type: tile
+            name: Lights on at Dark
+            tap_action:
+              action: toggle
+            entity: input_boolean.lights_on_at_dark_automation
+      - type: grid
+        cards:
+          - type: heading
+            heading: Office
+            heading_style: title
+            badges:
+              - type: entity
+                show_state: true
+                show_icon: true
+                entity: sensor.office_lights_on
+                color: orange
+                state_content: state
+                tap_action:
+                  action: toggle
+                icon: mdi:lightbulb-group
+              - type: entity
+                show_state: true
+                show_icon: true
+                entity: sensor.office_switches_on
+                icon: mdi:power-plug
+                color: primary
+            icon: ''
+          - type: custom:mushroom-light-card
+            entity: light.desk_light
+            name: Desk Lamp
+            use_light_color: true
+          - type: custom:mushroom-light-card
+            entity: light.desk_light_strip
+            name: Desk LEDs
+            use_light_color: true
+            icon: ''
+          - type: custom:mushroom-entity-card
+            entity: switch.smart_plug
+            tap_action:
+              action: toggle
+            icon: mdi:floor-lamp
+            name: Office Lamp
+      - type: grid
+        cards:
+          - type: heading
+            heading: Primary Bedroom
+            heading_style: title
+            badges:
+              - type: entity
+                show_state: true
+                show_icon: true
+                entity: sensor.primary_bed_switches_on
+                color: blue
+                state_content: state
+                tap_action:
+                  action: toggle
+                icon: ''
+            icon: ''
+          - type: custom:mushroom-entity-card
+            entity: switch.phone_charger
+            icon: mdi:lightning-bolt
+            icon_color: green
+            tap_action:
+              action: toggle
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+            name: Phone Charger
+          - type: custom:mushroom-entity-card
+            entity: switch.apple_watch_charger_outlet
+            name: Watch Charger
+            icon: mdi:lightning-bolt
+            icon_color: green
+            tap_action:
+              action: toggle
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+      - type: grid
+        cards:
+          - type: heading
+            heading: Outdoors
+            heading_style: title
+            badges:
+              - type: entity
+                show_state: true
+                show_icon: true
+                entity: sensor.outdoor_lights_on
+                color: orange
+                state_content: state
+                tap_action:
+                  action: toggle
+                icon: mdi:lightbulb-group
+            icon: ''
+          - type: custom:mushroom-light-card
+            entity: light.front_porch_light
+            name: Front Porch Light
+            use_light_color: true
+            show_brightness_control: false
+            show_color_temp_control: false
+            show_color_control: false
+            collapsible_controls: false
+    max_columns: 4
+  - title: System
+    path: system
+    type: sections
+    max_columns: 4
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: Home Assistant
+            heading_style: title
+            badges: []
+          - graph: line
+            type: sensor
+            detail: 2
+            entity: sensor.home_assistant_core_cpu_percent
+          - graph: line
+            type: sensor
+            detail: 2
+            entity: sensor.system_monitor_memory_usage
+          - type: custom:mushroom-update-card
+            name: Operating System
+            entity: update.home_assistant_operating_system_update
+          - type: custom:mushroom-template-card
+            primary: Uptime
+            secondary: >-
+              {% set uptime_seconds =
+              (as_timestamp(now())-as_timestamp(states('sensor.uptime')))|int %}
+              {% set uptime_minutes = (uptime_seconds // 60) %} {% set
+              uptime_hours = (uptime_minutes // 60) %} {% set uptime_days =
+              (uptime_hours // 24) %} {% if uptime_days != 0 %}{{ uptime_days
+              }}d {% endif %}{% if uptime_hours != 0 %}{{ uptime_hours -
+              (uptime_days*24)}}h {% endif %}{{ uptime_minutes -
+              (uptime_hours*60) }}m
+            icon: mdi:clock
+            icon_color: green
+            entity: sensor.uptime
+            tap_action:
+              action: more-info
+          - type: custom:mushroom-template-card
+            primary: Last Backup
+            secondary: >
+              {% set minutes = states('sensor.minutes_since_last_backup') | int
+              %}
+
+              {% set hours = minutes // 60 %}
+
+              {% set days = hours // 24 %}
+
+              {% set months = days // 30 %}
+
+              {% set years = days // 365 %}
+
+              {% set hours_remaining = hours % 24 %}
+
+              {% set minutes_remaining = minutes % 60 %}
+
+
+              {% if years > 0 %}
+                {{ years }} {{ 'year' if years == 1 else 'years' }} ago
+              {% elif months > 0 %}
+                {{ months }} {{ 'month' if months == 1 else 'months' }} ago
+              {% elif days > 0 %}
+                {{ days }} {{ 'day' if days == 1 else 'days' }} ago
+              {% elif hours_remaining > 0 %}
+                {{ hours_remaining }} {{ 'hour' if hours_remaining == 1 else 'hours' }} ago
+              {% elif minutes_remaining > 0 %}
+                {{ minutes_remaining }} {{ 'minute' if minutes_remaining == 1 else 'minutes' }} ago
+              {% else %}
+                Just now
+              {% endif %}
+            icon: mdi:harddisk
+            icon_color: >
+              {% set minutes = states('sensor.minutes_since_last_backup') | int
+              %}
+
+              {% if minutes < 4320 %}
+                green
+              {% elif minutes < 8640 %}
+                orange
+              {% else %}
+                red
+              {% endif %}
+            tap_action:
+              action: more-info
+            entity: sensor.hours_since_last_backup
+          - type: custom:mushroom-template-card
+            primary: HACS
+            secondary: >-
+              {% set pending_updates = states('sensor.pending_hacs_updates') |
+              int %}
+
+              {% if pending_updates == 0 %}
+                No updates available
+              {% elif pending_updates == 1 %}
+                1 update available
+              {% elif pending_updates >= 2 %}
+                {{ pending_updates }} updates available
+              {% endif %}
+            icon: hacs:hacs
+            icon_color: cyan
+            tap_action:
+              action: navigate
+              navigation_path: /hacs
+            visibility:
+              - condition: state
+                entity: sensor.pending_hacs_updates
+                state_not: '0'
+          - type: custom:mushroom-template-card
+            primary: Update Available
+            secondary: >-
+              Home Assistant Supervisor {{
+              state_attr('update.home_assistant_supervisor_update',
+              'latest_version') }}
+            icon: mdi:arrow-up-bold-circle-outline
+            icon_color: red
+            tap_action:
+              action: more-info
+            visibility:
+              - condition: state
+                entity: update.home_assistant_supervisor_update
+                state: 'on'
+            entity: update.home_assistant_supervisor_update
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: custom:mushroom-template-card
+            primary: Update Available
+            secondary: >-
+              Home Assistant OS {{
+              state_attr('update.home_assistant_operating_system_update',
+              'latest_version') }}
+            icon: mdi:arrow-up-bold-circle-outline
+            icon_color: orange
+            tap_action:
+              action: more-info
+            entity: update.home_assistant_operating_system_update
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+            visibility:
+              - condition: state
+                entity: update.home_assistant_operating_system_update
+                state: 'on'
+          - type: custom:mushroom-template-card
+            primary: Update Available
+            secondary: >-
+              Home Assistant Core {{
+              state_attr('update.home_assistant_core_update', 'latest_version')
+              }}
+            icon: mdi:arrow-up-bold-circle-outline
+            icon_color: blue
+            tap_action:
+              action: more-info
+            visibility:
+              - condition: state
+                entity: update.home_assistant_core_update
+                state: 'on'
+            entity: update.home_assistant_core_update
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+      - type: grid
+        cards:
+          - type: heading
+            heading: Wall Tablet
+          - graph: line
+            type: sensor
+            detail: 2
+            entity: sensor.ipad_storage
+            name: Storage
+            icon: mdi:harddisk
+          - graph: line
+            type: sensor
+            detail: 2
+            entity: sensor.ipad_battery_level
+            icon: mdi:battery
+            name: Battery
+          - type: custom:mushroom-template-card
+            primary: Tablet Battery
+            secondary: >-
+
+              {{ states('sensor.ipad_battery_level') + "%" }}{% if
+              is_state('switch.wall_tablet_charger_outlet', 'on') %} - Charging
+
+              {% endif %}
+            icon: |-
+              {% if states('sensor.ipad_battery_level') | int == 100 %}
+                mdi:battery
+              {% elif states('sensor.ipad_battery_level') | int >= 90 %}
+                mdi:battery-90
+              {% elif states('sensor.ipad_battery_level') | int >= 80 %}
+                mdi:battery-80
+              {% elif states('sensor.ipad_battery_level') | int >= 70 %}
+                mdi:battery-70
+              {% elif states('sensor.ipad_battery_level') | int >= 60 %}
+                mdi:battery-60
+              {% elif states('sensor.ipad_battery_level') | int >= 50 %}
+                mdi:battery-50
+              {% elif states('sensor.ipad_battery_level') | int >= 40 %}
+                mdi:battery-40
+              {% elif states('sensor.ipad_battery_level') | int >= 30 %}
+                mdi:battery-30
+              {% elif states('sensor.ipad_battery_level') | int >= 20 %}
+                mdi:battery-20
+              {% elif states('sensor.ipad_battery_level') | int >= 10 %}
+                mdi:battery-10
+              {% else %}
+                mdi:battery-outline
+              {% endif %}
+            icon_color: >-
+              {% if states('sensor.ipad_battery_level') | int >= 50 or
+              is_state('switch.wall_tablet_charger_outlet', 'on') %}
+                green
+              {% elif states('sensor.ipad_battery_level') | int >= 50 %}
+                orange
+              {% else %}
+                red
+              {% endif %}
+            tap_action:
+              action: toggle
+            entity: switch.wall_tablet_charger_outlet
+      - type: grid
+        cards:
+          - type: heading
+            heading: Network
+            heading_style: title
+            badges: []
+          - graph: line
+            type: sensor
+            detail: 2
+            entity: sensor.speedtest_download
+            name: Download
+          - graph: line
+            type: sensor
+            detail: 2
+            name: Upload
+            entity: sensor.speedtest_upload
+          - type: custom:mushroom-template-card
+            primary: WAN Status
+            secondary: |-
+              {% if states('binary_sensor.wan_status')  %}
+                Connected
+              {% else %}
+                Disconnected
+              {% endif %}
+            icon: |-
+              {% if states('binary_sensor.wan_status')  %}
+                mdi:check-network
+              {% else %}
+                mdi:close-network
+              {% endif %}
+            entity: binary_sensor.wan_status
+            icon_color: |-
+              {% if states('binary_sensor.wan_status')  %}
+                green
+              {% else %}
+                red
+              {% endif %}
+            tap_action:
+              action: more-info
+            badge_icon: ''
+          - type: custom:mushroom-template-card
+            primary: LAN Status
+            secondary: |-
+              {% if states('binary_sensor.lan_status')  %}
+                Connected
+              {% else %}
+                Disconnected
+              {% endif %}
+            icon: |-
+              {% if states('binary_sensor.lan_status')  %}
+                mdi:check-network
+              {% else %}
+                mdi:close-network
+              {% endif %}
+            icon_color: |-
+              {% if states('binary_sensor.lan_status')  %}
+                green
+              {% else %}
+                red
+              {% endif %}
+            tap_action:
+              action: more-info
+            badge_icon: ''
+            entity: binary_sensor.lan_status
+          - type: custom:mushroom-template-card
+            primary: UPS Battery
+            secondary: '{{ states(''sensor.ups_battery_charge'') + "%" }}'
+            icon: |-
+              {% if states('sensor.ups_battery_charge') | int == 100 %}
+                mdi:battery
+              {% elif states('sensor.ups_battery_charge') | int >= 90 %}
+                mdi:battery-90
+              {% elif states('sensor.ups_battery_charge') | int >= 80 %}
+                mdi:battery-80
+              {% elif states('sensor.ups_battery_charge') | int >= 70 %}
+                mdi:battery-70
+              {% elif states('sensor.ups_battery_charge') | int >= 60 %}
+                mdi:battery-60
+              {% elif states('sensor.ups_battery_charge') | int >= 50 %}
+                mdi:battery-50
+              {% elif states('sensor.ups_battery_charge') | int >= 40 %}
+                mdi:battery-40
+              {% elif states('sensor.ups_battery_charge') | int >= 30 %}
+                mdi:battery-30
+              {% elif states('sensor.ups_battery_charge') | int >= 20 %}
+                mdi:battery-20
+              {% elif states('sensor.ups_battery_charge') | int >= 10 %}
+                mdi:battery-10
+              {% else %}
+                mdi:battery-outline
+              {% endif %}
+            icon_color: |-
+              {% if states('sensor.ups_battery_charge') | int >= 80 %}
+                green
+              {% elif states('sensor.ups_battery_charge') | int >= 50 %}
+                orange
+              {% else %}
+                red
+              {% endif %}
+            tap_action:
+              action: more-info
+            entity: sensor.ups_battery_charge
+          - type: custom:mushroom-template-card
+            primary: UPS Load
+            secondary: '{{ states(''sensor.ups_load'') + "%" }}'
+            icon: |-
+              {% if states('sensor.ups_load') | int >= 80 %}
+                mdi:gauge-full
+              {% elif states('sensor.ups_load') | int >= 50 %}
+                mdi:gauge
+              {% else %}
+                mdi:gauge-empty
+              {% endif %}
+            icon_color: |-
+              {% if states('sensor.ups_load') | int >= 80 %}
+                red
+              {% elif states('sensor.ups_load') | int >= 50 %}
+                orange
+              {% else %}
+                green
+              {% endif %}
+            entity: sensor.ups_load
+            tap_action:
+              action: more-info
+          - type: custom:mushroom-template-card
+            primary: Social Media
+            secondary: |-
+              {% if is_state('switch.block_social_media', 'on') %}
+                Blocked
+              {% elif is_state('switch.block_social_media', 'off') %}
+                Allowed
+              {% endif %}
+            icon: mdi:web
+            icon_color: |-
+              {% if is_state('switch.block_social_media', 'on') %}
+                red
+              {% elif is_state('switch.block_social_media', 'off') %}
+                green
+              {% endif %}
+            tap_action:
+              action: none
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: custom:mushroom-template-card
+            primary: Pi-hole
+            secondary: |-
+              {% if states('binary_sensor.uptimekuma_pihole')  %}
+                Connected
+              {% else %}
+                Disconnected
+              {% endif %}
+            icon: |-
+              {% if states('binary_sensor.uptimekuma_pihole')  %}
+                mdi:check-network
+              {% else %}
+                mdi:close-network
+              {% endif %}
+            icon_color: |-
+              {% if states('binary_sensor.uptimekuma_pihole')  %}
+                green
+              {% else %}
+                red
+              {% endif %}
+            tap_action:
+              action: more-info
+            badge_icon: ''
+            entity: binary_sensor.uptimekuma_pihole
+      - type: grid
+        cards:
+          - type: heading
+            heading: Automations
+          - type: tile
+            entity: automation.increment_change_sheet_counter
+            name: Sheet Counter
+            tap_action:
+              action: toggle
+          - type: tile
+            tap_action:
+              action: toggle
+            entity: automation.perform_automatic_backup
+            name: Automatic Backups
+          - type: tile
+            name: Wall Charger (On)
+            tap_action:
+              action: toggle
+            entity: automation.turn_on_wall_tablet_charger
+          - type: tile
+            name: Wall Charger (Off)
+            tap_action:
+              action: toggle
+            entity: automation.turn_of_wall_tablet_charger
+          - type: tile
+            name: Phone Charger (On)
+            tap_action:
+              action: toggle
+            entity: automation.turn_on_phone_charger
+          - type: tile
+            name: Phone Charger (Off)
+            tap_action:
+              action: toggle
+            entity: automation.turn_off_phone_charger
+          - type: tile
+            name: Watch Charger (Off)
+            tap_action:
+              action: toggle
+            entity: automation.turn_off_apple_watch_charger
+          - type: tile
+            name: Watch Charger (On)
+            tap_action:
+              action: toggle
+            entity: automation.start_apple_watch_charger_timer
+    cards: []
+  - title: Music
+    path: music
+    type: panel
+    cards:
+      - type: iframe
+        url: http://homeassistant.local:8095/#/home
+        card_mod:
+          style: |
+            ha-card{
+              height: calc(100vh - 16px);
+            }
+  - title: Calendar
+    path: calendar
+    type: panel
+    cards:
+      - type: calendar
+        entities:
+          - calendar.garbage_schedule
+          - calendar.birthdays
+          - calendar.holidays
+          - calendar.miscellaneous
+        card_mod:
+          style: |
+            ha-full-calendar{
+              height: 100%;
+            }
