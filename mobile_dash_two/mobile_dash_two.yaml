@@ -1,0 +1,1656 @@
+views:
+  - title: Home
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            icon: mdi:chevron-right
+            heading: Security
+            heading_style: title
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main/security
+            card_mod:
+              style: |
+                ha-card {
+                  margin-top: -15px !important;
+                }
+                ha-card .container .content {
+                  flex-direction: row-reverse !important;
+                  margin-left: -22px !important;
+                  color: rgb(148,148,148) !important;
+                  font-size: 18px !important;
+                  font-weight: 400 !important;
+                }
+                ha-card .container .content ha-icon {
+                  padding-left: 10px;
+                  --mdc-icon-size: 24px !important;
+                }
+          - type: custom:mushroom-alarm-control-panel-card
+            entity: alarm_control_panel.office
+            states: []
+            name: Alarm
+          - type: custom:mushroom-climate-card
+            entity: climate.thermostat
+            name: Thermostat
+            hvac_modes: []
+            show_temperature_control: false
+            collapsible_controls: false
+            icon: mdi:home-thermometer-outline
+            tap_action:
+              action: toggle
+            hold_action:
+              action: more-info
+            double_tap_action:
+              action: none
+          - type: custom:mushroom-template-card
+            primary: Front Door
+            secondary: |-
+              {% if is_state("lock.front_door", "locked") %}
+                Locked
+              {%else%}
+                Unlocked
+              {%endif%}
+            icon: |-
+              {% if is_state("lock.front_door", "locked") %}
+                mdi:lock
+              {%else%}
+                mdi:lock-open-variant
+              {%endif%}
+            icon_color: |-
+              {% if is_state("lock.front_door", "locked") %}
+                green
+              {%else%}
+                red
+              {%endif%}
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+            entity: lock.front_door
+      - type: grid
+        cards:
+          - type: heading
+            icon: mdi:chevron-right
+            heading: Rooms
+            heading_style: title
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main/rooms
+            card_mod:
+              style: |
+                ha-card {
+                  margin-top: -15px !important;
+                }
+                ha-card .container .content {
+                  flex-direction: row-reverse !important;
+                  margin-left: -22px !important;
+                  color: rgb(148,148,148) !important;
+                  font-size: 18px !important;
+                  font-weight: 400 !important;
+                }
+                ha-card .container .content ha-icon {
+                  padding-left: 10px;
+                  --mdc-icon-size: 24px !important;
+                }
+          - type: custom:mushroom-template-card
+            primary: Living
+            secondary: Placeholder
+            icon: mdi:sofa-outline
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main/living-room
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: custom:mushroom-template-card
+            primary: Kitchen
+            secondary: Placeholder
+            icon: mdi:fridge-outline
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main/kitchen
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: custom:mushroom-template-card
+            primary: Primary Bed
+            secondary: Placeholder
+            icon: mdi:bed-king-outline
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main/primary-bed
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: custom:mushroom-template-card
+            primary: Primary Bath
+            secondary: Placeholder
+            icon: mdi:bathtub-outline
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main/primary-bath
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: custom:mushroom-template-card
+            primary: Guest Bed
+            secondary: Placeholder
+            icon: mdi:bed-single-outline
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main/guest-bed
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: custom:mushroom-template-card
+            primary: Guest Bath
+            secondary: Placeholder
+            icon: mdi:shower
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main/guest-bath
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: custom:mushroom-template-card
+            primary: Gym
+            secondary: Placeholder
+            icon: mdi:dumbbell
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main/gym
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: custom:mushroom-template-card
+            primary: Office
+            secondary: Placeholder
+            icon: mdi:desk
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main/office
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+            entity: sensor.office_lights_on
+            multiline_secondary: false
+            icon_color: |
+              {% if (states('sensor.office_lights_on') | int) >= 1 %}
+                orange
+              {% else %}
+                disabled
+              {% endif %}
+            badge_icon: ''
+            badge_color: ''
+          - type: custom:mushroom-template-card
+            primary: Laundry
+            secondary: Placeholder
+            icon: mdi:washing-machine
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main/laundry
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: custom:mushroom-template-card
+            primary: Garage
+            secondary: Placeholder
+            icon: mdi:car
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main/garage
+            hold_action:
+              action: navigate
+              navigation_path: /dashboard-main/gas
+            double_tap_action:
+              action: none
+          - type: custom:mushroom-template-card
+            primary: Outside
+            secondary: >-
+              {{states('sensor.blink_back_door_temperature') + "°F"}} /
+              Placeholder
+            icon: mdi:tree-outline
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main/outside
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+    badges:
+      - type: entity
+        show_name: false
+        show_state: true
+        show_icon: true
+        entity: person.garrett_morgan
+        color: ''
+        show_entity_picture: true
+        state_content: state
+      - type: entity
+        show_name: true
+        show_state: false
+        show_icon: true
+        entity: person.megan
+        color: ''
+        show_entity_picture: true
+        name: Megan
+        state_content: name
+      - type: custom:mushroom-template-badge
+        content: '{{ states(''sensor.all_lights_on'') }}'
+        icon: mdi:lightbulb-on
+        color: amber
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-main/devices
+        hold_action:
+          action: none
+        double_tap_action:
+          action: none
+      - type: custom:mushroom-template-badge
+        content: '{{ states(''sensor.all_switches_on'') }}'
+        icon: mdi:power-plug-outline
+        color: cornflowerblue
+        double_tap_action:
+          action: none
+        hold_action:
+          action: none
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-main/devices
+      - type: entity
+        show_name: false
+        show_state: false
+        show_icon: true
+        color: dark-grey
+        show_entity_picture: false
+        icon: mdi:bullhorn
+        entity: script.announce_everywhere
+      - type: custom:mushroom-template-badge
+        content: ''
+        icon: mdi:trash-can
+        color: saddlebrown
+        tap_action:
+          action: perform-action
+          perform_action: script.trash_day_off
+          target: {}
+        hold_action:
+          action: none
+        double_tap_action:
+          action: none
+        entity: input_boolean.trash_day
+        visibility:
+          - condition: state
+            entity: input_boolean.trash_day
+            state: 'on'
+      - type: custom:mushroom-template-badge
+        content: ''
+        icon: mdi:water-alert
+        color: red
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-main/devices#sensors
+        hold_action:
+          action: none
+        double_tap_action:
+          action: none
+        visibility:
+          - condition: state
+            entity: binary_sensor.sink_leak_sensor_waterleak
+            state: 'on'
+      - type: custom:mushroom-template-badge
+        content: '{{ states(''sensor.ipad_battery_level'') + ''%''}}'
+        icon: mdi:battery-alert
+        color: red
+        entity: sensor.ipad_battery_level
+        tap_action:
+          action: none
+        hold_action:
+          action: none
+        double_tap_action:
+          action: none
+        visibility:
+          - condition: numeric_state
+            entity: sensor.ipad_battery_level
+            below: 50
+        label: Tablet
+    card_mod:
+      style: |
+        :host {
+          --ha-badge-border-radius: 20px !important;
+        }
+    type: sections
+    max_columns: 4
+    path: home
+    cards: []
+    theme: Mushroom
+  - type: sections
+    max_columns: 4
+    title: Rooms
+    path: rooms
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            icon: mdi:chevron-right
+            heading: Rooms
+            heading_style: title
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main/home
+            card_mod:
+              style: |
+                ha-card {
+                  margin-top: -15px !important;
+                }
+                ha-card .container .content {
+                  flex-direction: row-reverse !important;
+                  margin-left: -22px !important;
+                  color: rgb(148,148,148) !important;
+                  font-size: 18px !important;
+                  font-weight: 400 !important;
+                }
+                ha-card .container .content ha-icon {
+                  padding-left: 10px;
+                  --mdc-icon-size: 24px !important;
+                }
+          - type: custom:mushroom-template-card
+            primary: Living
+            secondary: Placeholder
+            icon: mdi:sofa-outline
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main/living-room
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: custom:mushroom-template-card
+            primary: Kitchen
+            secondary: Placeholder
+            icon: mdi:fridge-outline
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main/kitchen
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: custom:mushroom-template-card
+            primary: Primary Bed
+            secondary: Placeholder
+            icon: mdi:bed-king-outline
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main/primary-bed
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: custom:mushroom-template-card
+            primary: Primary Bath
+            secondary: Placeholder
+            icon: mdi:bathtub-outline
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main/primary-bath
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: custom:mushroom-template-card
+            primary: Guest Bed
+            secondary: Placeholder
+            icon: mdi:bed-single-outline
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main/guest-bed
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: custom:mushroom-template-card
+            primary: Guest Bath
+            secondary: Placeholder
+            icon: mdi:shower
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main/guest-bath
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: custom:mushroom-template-card
+            primary: Gym
+            secondary: Placeholder
+            icon: mdi:dumbbell
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main/gym
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: custom:mushroom-template-card
+            primary: Office
+            secondary: Placeholder
+            icon: mdi:desk
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main/office
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+            entity: sensor.office_lights_on
+            multiline_secondary: false
+            icon_color: |
+              {% if (states('sensor.office_lights_on') | int) >= 1 %}
+                orange
+              {% else %}
+                disabled
+              {% endif %}
+            badge_icon: ''
+            badge_color: ''
+          - type: custom:mushroom-template-card
+            primary: Laundry
+            secondary: Placeholder
+            icon: mdi:washing-machine
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main/laundry
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: custom:mushroom-template-card
+            primary: Garage
+            secondary: Placeholder
+            icon: mdi:car
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main/garage
+            hold_action:
+              action: navigate
+              navigation_path: /dashboard-main/gas
+            double_tap_action:
+              action: none
+          - type: custom:mushroom-template-card
+            primary: Outside
+            secondary: >-
+              {{states('sensor.blink_back_door_temperature') + "°F"}} /
+              Placeholder
+            icon: mdi:tree-outline
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main/outside
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+    subview: true
+    cards: []
+  - type: sections
+    max_columns: 4
+    path: devices
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            icon: mdi:chevron-right
+            heading: Lights
+            heading_style: title
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main
+            card_mod:
+              style: |
+                ha-card {
+                  margin-top: -15px !important;
+                }
+                ha-card .container .content {
+                  flex-direction: row-reverse !important;
+                  margin-left: -22px !important;
+                  color: rgb(148,148,148) !important;
+                  font-size: 18px !important;
+                  font-weight: 400 !important;
+                }
+                ha-card .container .content ha-icon {
+                  padding-left: 10px;
+                  --mdc-icon-size: 24px !important;
+                }
+          - type: custom:mushroom-entity-card
+            entity: light.desk_light
+            tap_action:
+              action: toggle
+            card_mod:
+              style: |
+                ha-state-icon {
+                  color: rgb({{ state_attr("light.desk_light", "rgb_color")[0] }}, {{ state_attr("light.desk_light", "rgb_color")[1] }}, {{ state_attr("light.desk_light", "rgb_color")[2] }}) !important;
+                }
+                mushroom-shape-icon  {
+                  --shape-color: rgb({{ state_attr("light.desk_light", "rgb_color")[0] }}, {{ state_attr("light.desk_light", "rgb_color")[1] }}, {{ state_attr("light.desk_light", "rgb_color")[2] }}, 0.20) !important;
+                }
+          - type: custom:mushroom-entity-card
+            entity: light.desk_light_strip
+            tap_action:
+              action: toggle
+            hold_action:
+              action: more-info
+            double_tap_action:
+              action: none
+          - type: heading
+            icon: mdi:chevron-right
+            heading_style: title
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main
+            heading: Smart Plugs
+            card_mod:
+              style: |
+                ha-card {
+                  margin-top: -15px !important;
+                }
+                ha-card .container .content {
+                  flex-direction: row-reverse !important;
+                  margin-left: -22px !important;
+                  color: rgb(148,148,148) !important;
+                  font-size: 18px !important;
+                  font-weight: 400 !important;
+                }
+                ha-card .container .content ha-icon {
+                  padding-left: 10px;
+                  --mdc-icon-size: 24px !important;
+                }
+          - type: custom:mushroom-entity-card
+            entity: switch.phone_charger
+            tap_action:
+              action: toggle
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+            name: Phone Charger
+          - type: custom:mushroom-entity-card
+            entity: switch.wall_tablet_charger_outlet
+            tap_action:
+              action: toggle
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: custom:mushroom-entity-card
+            entity: switch.smart_plug
+            tap_action:
+              action: toggle
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+            name: Office Lamp
+          - type: heading
+            icon: mdi:chevron-right
+            heading: Sensors
+            heading_style: title
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main
+            card_mod:
+              style: |
+                ha-card {
+                  margin-top: -15px !important;
+                }
+                ha-card .container .content {
+                  flex-direction: row-reverse !important;
+                  margin-left: -22px !important;
+                  color: rgb(148,148,148) !important;
+                  font-size: 18px !important;
+                  font-weight: 400 !important;
+                }
+                ha-card .container .content ha-icon {
+                  padding-left: 10px;
+                  --mdc-icon-size: 24px !important;
+                }
+          - type: custom:mushroom-template-card
+            primary: Kitchen Sink Leak Sensor
+            secondary: >-
+              {% if is_state("binary_sensor.sink_leak_sensor_waterleak", "on")
+              %}
+                Leak Detected
+              {%else%}
+                Safe
+              {%endif%}
+            icon: >-
+              {% if is_state("binary_sensor.sink_leak_sensor_waterleak", "on")
+              %}
+                mdi:water-alert
+              {%else%}
+                mdi:water-check
+              {%endif%}
+            entity: binary_sensor.sink_leak_sensor_waterleak
+            icon_color: >-
+              {% if is_state("binary_sensor.sink_leak_sensor_waterleak", "on")
+              %}
+                red
+              {%else%}
+                green
+              {%endif%}
+            tap_action:
+              action: none
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+    subview: true
+    cards: []
+    icon: ''
+    theme: Mushroom
+    title: Devices
+    badges:
+      - type: custom:mushroom-template-badge
+        content: '{{ states(''sensor.all_lights_on'') }}'
+        icon: mdi:lightbulb-on
+        color: amber
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-main/devices
+        hold_action:
+          action: none
+        double_tap_action:
+          action: none
+      - type: custom:mushroom-template-badge
+        content: '{{ states(''sensor.all_switches_on'') }}'
+        icon: mdi:power-plug-outline
+        color: cornflowerblue
+        double_tap_action:
+          action: none
+        hold_action:
+          action: none
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-main/devices
+      - type: custom:mushroom-template-badge
+        content: ''
+        icon: mdi:water-alert
+        color: red
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-main/devices#sensors
+        hold_action:
+          action: none
+        double_tap_action:
+          action: none
+        visibility:
+          - condition: state
+            entity: binary_sensor.sink_leak_sensor_waterleak
+            state: 'on'
+  - type: sections
+    max_columns: 4
+    title: Media
+    path: media
+    subview: true
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            icon: mdi:chevron-right
+            heading: Speakers
+            heading_style: title
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main
+            card_mod:
+              style: |
+                ha-card {
+                  margin-top: -15px !important;
+                }
+                ha-card .container .content {
+                  flex-direction: row-reverse !important;
+                  margin-left: -22px !important;
+                  color: rgb(148,148,148) !important;
+                  font-size: 18px !important;
+                  font-weight: 400 !important;
+                }
+                ha-card .container .content ha-icon {
+                  padding-left: 10px;
+                  --mdc-icon-size: 24px !important;
+                }
+          - type: custom:vertical-stack-in-card
+            cards:
+              - type: media-control
+                entity: media_player.gym_speaker
+              - type: horizontal-stack
+                cards:
+                  - type: custom:mushroom-chips-card
+                    chips:
+                      - type: entity
+                        entity: script.plex_media_server_play
+                        tap_action:
+                          action: perform-action
+                          perform_action: script.plex_media_server_play
+                          target: {}
+                        hold_action:
+                          action: none
+                        double_tap_action:
+                          action: none
+                        name: Play
+                        icon: mdi:play
+                        content_info: name
+                      - type: entity
+                        entity: script.cast_next_media_player_selection
+                        tap_action:
+                          action: perform-action
+                          perform_action: script.cast_next_media_player_selection
+                          target: {}
+                        hold_action:
+                          action: none
+                        double_tap_action:
+                          action: none
+                        name: Next
+                        content_info: name
+                        icon: mdi:skip-next
+                      - type: entity
+                        entity: script.turn_off_gym_speaker
+                        tap_action:
+                          action: perform-action
+                          perform_action: script.turn_off_gym_speaker
+                          target: {}
+                        hold_action:
+                          action: none
+                        double_tap_action:
+                          action: none
+                        name: Stop
+                        content_info: name
+                        use_entity_picture: false
+                      - type: entity
+                        entity: sensor.gym_speaker_volume
+                        icon: mdi:volume-high
+                        content_info: state
+                        tap_action:
+                          action: none
+                        hold_action:
+                          action: none
+                        double_tap_action:
+                          action: none
+                    alignment: center
+          - type: custom:mini-media-player
+            entity: media_player.office_echo_dot
+            group: false
+            artwork: cover
+            source: icon
+            info: scroll
+            volume_stateless: false
+            toggle_power: true
+          - type: custom:mini-media-player
+            entity: media_player.kitchen_echo_show
+            group: false
+            artwork: cover
+            source: icon
+            info: scroll
+            volume_stateless: false
+            toggle_power: true
+          - type: custom:mini-media-player
+            entity: media_player.homepod_mini
+            group: false
+            artwork: cover
+            info: scroll
+            volume_stateless: false
+            toggle_power: true
+            sound_mode: full
+      - type: grid
+        cards:
+          - type: heading
+            icon: mdi:chevron-right
+            heading: Television
+            heading_style: title
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main
+            card_mod:
+              style: |
+                ha-card {
+                  margin-top: -15px !important;
+                }
+                ha-card .container .content {
+                  flex-direction: row-reverse !important;
+                  margin-left: -22px !important;
+                  color: rgb(148,148,148) !important;
+                  font-size: 18px !important;
+                  font-weight: 400 !important;
+                }
+                ha-card .container .content ha-icon {
+                  padding-left: 10px;
+                  --mdc-icon-size: 24px !important;
+                }
+          - type: custom:mini-media-player
+            entity: media_player.main_tv
+            group: false
+            artwork: cover
+            toggle_power: true
+          - type: custom:mini-media-player
+            entity: media_player.master_tv
+            group: false
+            artwork: cover
+            toggle_power: true
+          - type: custom:mini-media-player
+            entity: media_player.megan_s_fire_tv_stick
+            group: false
+            artwork: cover
+            toggle_power: true
+  - type: sections
+    max_columns: 4
+    title: Security
+    path: security
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            icon: mdi:chevron-right
+            heading: Security
+            heading_style: title
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main
+            card_mod:
+              style: |
+                ha-card {
+                  margin-top: -15px !important;
+                }
+                ha-card .container .content {
+                  flex-direction: row-reverse !important;
+                  margin-left: -22px !important;
+                  color: rgb(148,148,148) !important;
+                  font-size: 18px !important;
+                  font-weight: 400 !important;
+                }
+                ha-card .container .content ha-icon {
+                  padding-left: 10px;
+                  --mdc-icon-size: 24px !important;
+                }
+          - type: custom:mushroom-alarm-control-panel-card
+            entity: alarm_control_panel.office
+            states: []
+            name: Alarm
+          - type: custom:mushroom-climate-card
+            entity: climate.t6_pro_z_wave_programmable_thermostat
+            name: Thermostat
+            hvac_modes: []
+            show_temperature_control: false
+            collapsible_controls: false
+            icon: ''
+          - type: custom:mushroom-entity-card
+            entity: lock.home_connect_620_connected_smart_lock
+            name: Front Door
+            tap_action:
+              action: toggle
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+            icon_color: green
+            fill_container: false
+          - type: heading
+            icon: mdi:chevron-right
+            heading: Windows
+            heading_style: title
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main
+            card_mod:
+              style: |
+                ha-card {
+                  margin-top: -15px !important;
+                }
+                ha-card .container .content {
+                  flex-direction: row-reverse !important;
+                  margin-left: -22px !important;
+                  color: rgb(148,148,148) !important;
+                  font-size: 18px !important;
+                  font-weight: 400 !important;
+                }
+                ha-card .container .content ha-icon {
+                  padding-left: 10px;
+                  --mdc-icon-size: 24px !important;
+                }
+          - type: heading
+            icon: mdi:chevron-right
+            heading: Doors
+            heading_style: title
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main
+            card_mod:
+              style: |
+                ha-card {
+                  margin-top: -15px !important;
+                }
+                ha-card .container .content {
+                  flex-direction: row-reverse !important;
+                  margin-left: -22px !important;
+                  color: rgb(148,148,148) !important;
+                  font-size: 18px !important;
+                  font-weight: 400 !important;
+                }
+                ha-card .container .content ha-icon {
+                  padding-left: 10px;
+                  --mdc-icon-size: 24px !important;
+                }
+          - type: heading
+            icon: mdi:chevron-right
+            heading: Cameras
+            heading_style: title
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main
+            card_mod:
+              style: |
+                ha-card {
+                  margin-top: -15px !important;
+                }
+                ha-card .container .content {
+                  flex-direction: row-reverse !important;
+                  margin-left: -22px !important;
+                  color: rgb(148,148,148) !important;
+                  font-size: 18px !important;
+                  font-weight: 400 !important;
+                }
+                ha-card .container .content ha-icon {
+                  padding-left: 10px;
+                  --mdc-icon-size: 24px !important;
+                }
+          - show_state: true
+            show_name: true
+            camera_view: live
+            type: picture-entity
+            image: https://demo.home-assistant.io/stub_config/bedroom.png
+            entity: camera.front_door_live_view_2
+            camera_image: camera.front_door_live_view_2
+            name: Front Door
+            theme: Mushroom
+          - type: custom:webrtc-camera
+            url: rtsp://192.168.1.175/live0
+            muted: true
+          - show_state: true
+            show_name: true
+            camera_view: live
+            type: picture-entity
+            entity: camera.back_door
+            camera_image: camera.back_door
+    subview: true
+    cards: []
+  - type: sections
+    max_columns: 4
+    path: gas
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            icon: mdi:chevron-right
+            heading: Gas
+            heading_style: title
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main
+            card_mod:
+              style: |
+                ha-card {
+                  margin-top: -15px !important;
+                }
+                ha-card .container .content {
+                  flex-direction: row-reverse !important;
+                  margin-left: -22px !important;
+                  color: rgb(148,148,148) !important;
+                  font-size: 18px !important;
+                  font-weight: 400 !important;
+                }
+                ha-card .container .content ha-icon {
+                  padding-left: 10px;
+                  --mdc-icon-size: 24px !important;
+                }
+          - type: custom:mushroom-entity-card
+            entity: sensor.anna_walmart_regular_gas
+            name: Anna Walmart
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: custom:mushroom-entity-card
+            entity: sensor.anna_7_eleven_regular_gas
+            name: Anna 7-Eleven
+          - type: custom:mushroom-entity-card
+            entity: sensor.anna_love_s_regular_gas
+            name: Anna Love's
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: custom:mushroom-entity-card
+            entity: sensor.anna_flying_j_regular_gas
+            name: Anna Flying J
+          - type: custom:mushroom-entity-card
+            entity: sensor.melissa_buc_ee_s_regular_gas
+            name: Melissa Buc-ee's
+          - type: custom:mushroom-entity-card
+            entity: sensor.mckinney_circle_k_regular_gas
+            name: McKinney Circle K
+    subview: true
+    cards: []
+    icon: mdi:gas-station
+  - type: sections
+    max_columns: 4
+    path: living-room
+    theme: Mushroom
+    subview: true
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            icon: mdi:chevron-right
+            heading: Living Room
+            heading_style: title
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main
+            card_mod:
+              style: |
+                ha-card {
+                  margin-top: -15px !important;
+                }
+                ha-card .container .content {
+                  flex-direction: row-reverse !important;
+                  margin-left: -22px !important;
+                  color: rgb(148,148,148) !important;
+                  font-size: 18px !important;
+                  font-weight: 400 !important;
+                }
+                ha-card .container .content ha-icon {
+                  padding-left: 10px;
+                  --mdc-icon-size: 24px !important;
+                }
+        visibility:
+          - condition: state
+            entity: binary_sensor.workday_sensor
+            state: 'on'
+    icon: mdi:sofa-outline
+    cards: []
+  - type: sections
+    max_columns: 4
+    path: kitchen
+    subview: true
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            icon: mdi:chevron-right
+            heading: Kitchen
+            heading_style: title
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main
+            card_mod:
+              style: |
+                ha-card {
+                  margin-top: -15px !important;
+                }
+                ha-card .container .content {
+                  flex-direction: row-reverse !important;
+                  margin-left: -22px !important;
+                  color: rgb(148,148,148) !important;
+                  font-size: 18px !important;
+                  font-weight: 400 !important;
+                }
+                ha-card .container .content ha-icon {
+                  padding-left: 10px;
+                  --mdc-icon-size: 24px !important;
+                }
+          - type: custom:mushroom-template-card
+            primary: Kitchen Sink Leak Sensor
+            secondary: >-
+              {% if is_state("binary_sensor.sink_leak_sensor_waterleak", "on")
+              %}
+                Leak Detected
+              {%else%}
+                Safe
+              {%endif%}
+            icon: >-
+              {% if is_state("binary_sensor.sink_leak_sensor_waterleak", "on")
+              %}
+                mdi:water-alert
+              {%else%}
+                mdi:water-check
+              {%endif%}
+            entity: binary_sensor.sink_leak_sensor_waterleak
+            icon_color: >-
+              {% if is_state("binary_sensor.sink_leak_sensor_waterleak", "on")
+              %}
+                red
+              {%else%}
+                green
+              {%endif%}
+            tap_action:
+              action: none
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: custom:mushroom-entity-card
+            entity: switch.wall_tablet_charger_outlet
+            name: Wall Tablet Charger
+            tap_action:
+              action: toggle
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+    badges:
+      - type: custom:mushroom-template-badge
+        content: '{{ states(''sensor.ipad_battery_level'') + ''%''}}'
+        icon: mdi:tablet-dashboard
+        color: blue
+        entity: sensor.ipad_battery_level
+        tap_action:
+          action: none
+        hold_action:
+          action: none
+        double_tap_action:
+          action: none
+      - type: entity
+        show_name: false
+        show_state: false
+        show_icon: true
+        entity: script.announce
+        color: dark-grey
+        show_entity_picture: false
+        icon: mdi:bullhorn
+    icon: mdi:fridge-outline
+    cards: []
+  - type: sections
+    max_columns: 4
+    path: primary-bed
+    subview: true
+    theme: Mushroom
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            icon: mdi:chevron-right
+            heading: Primary Bed
+            heading_style: title
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main
+            card_mod:
+              style: |
+                ha-card {
+                  margin-top: -15px !important;
+                }
+                ha-card .container .content {
+                  flex-direction: row-reverse !important;
+                  margin-left: -22px !important;
+                  color: rgb(148,148,148) !important;
+                  font-size: 18px !important;
+                  font-weight: 400 !important;
+                }
+                ha-card .container .content ha-icon {
+                  padding-left: 10px;
+                  --mdc-icon-size: 24px !important;
+                }
+          - type: custom:mushroom-template-card
+            primary: Phone Charger
+            secondary: |-
+              {% if is_state("switch.phone_charger", "on") %}
+                On
+              {%else%}
+                Off
+              {%endif%}
+            icon: |-
+              {% if is_state("switch.phone_charger", "on") %}
+                mdi:power-plug
+              {%else%}
+                mdi:power-plug-off
+              {%endif%}
+            tap_action:
+              action: toggle
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+            entity: switch.phone_charger
+            icon_color: |-
+              {% if is_state("switch.phone_charger", "on") %}
+                blue
+              {%else%}
+                disabled
+              {%endif%}
+    badges:
+      - type: entity
+        show_name: false
+        show_state: false
+        show_icon: true
+        entity: script.announce_primary_bedroom
+        color: dark-grey
+        show_entity_picture: false
+        icon: mdi:bullhorn
+    icon: mdi:bed-king-outline
+    cards: []
+  - type: sections
+    max_columns: 4
+    path: primary-bath
+    theme: Mushroom
+    subview: true
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            icon: mdi:chevron-right
+            heading: Primary Bath
+            heading_style: title
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main
+            card_mod:
+              style: |
+                ha-card {
+                  margin-top: -15px !important;
+                }
+                ha-card .container .content {
+                  flex-direction: row-reverse !important;
+                  margin-left: -22px !important;
+                  color: rgb(148,148,148) !important;
+                  font-size: 18px !important;
+                  font-weight: 400 !important;
+                }
+                ha-card .container .content ha-icon {
+                  padding-left: 10px;
+                  --mdc-icon-size: 24px !important;
+                }
+        visibility:
+          - condition: state
+            entity: binary_sensor.workday_sensor
+            state: 'on'
+    icon: mdi:bathtub-outline
+    cards: []
+  - type: sections
+    max_columns: 4
+    path: guest-bed
+    theme: Mushroom
+    subview: true
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            icon: mdi:chevron-right
+            heading: Guest Bed
+            heading_style: title
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main
+            card_mod:
+              style: |
+                ha-card {
+                  margin-top: -15px !important;
+                }
+                ha-card .container .content {
+                  flex-direction: row-reverse !important;
+                  margin-left: -22px !important;
+                  color: rgb(148,148,148) !important;
+                  font-size: 18px !important;
+                  font-weight: 400 !important;
+                }
+                ha-card .container .content ha-icon {
+                  padding-left: 10px;
+                  --mdc-icon-size: 24px !important;
+                }
+        visibility:
+          - condition: state
+            entity: binary_sensor.workday_sensor
+            state: 'on'
+    icon: mdi:bed-double-outline
+    cards: []
+  - type: sections
+    max_columns: 4
+    path: guest-bath
+    theme: Mushroom
+    subview: true
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            icon: mdi:chevron-right
+            heading: Guest Bath
+            heading_style: title
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main
+            card_mod:
+              style: |
+                ha-card {
+                  margin-top: -15px !important;
+                }
+                ha-card .container .content {
+                  flex-direction: row-reverse !important;
+                  margin-left: -22px !important;
+                  color: rgb(148,148,148) !important;
+                  font-size: 18px !important;
+                  font-weight: 400 !important;
+                }
+                ha-card .container .content ha-icon {
+                  padding-left: 10px;
+                  --mdc-icon-size: 24px !important;
+                }
+        visibility:
+          - condition: state
+            entity: binary_sensor.workday_sensor
+            state: 'on'
+    icon: mdi:shower
+    cards: []
+  - type: sections
+    max_columns: 4
+    path: gym
+    theme: Mushroom
+    subview: true
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            icon: mdi:chevron-right
+            heading: Gym
+            heading_style: title
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main
+            card_mod:
+              style: |
+                ha-card {
+                  margin-top: -15px !important;
+                }
+                ha-card .container .content {
+                  flex-direction: row-reverse !important;
+                  margin-left: -22px !important;
+                  color: rgb(148,148,148) !important;
+                  font-size: 18px !important;
+                  font-weight: 400 !important;
+                }
+                ha-card .container .content ha-icon {
+                  padding-left: 10px;
+                  --mdc-icon-size: 24px !important;
+                }
+        visibility:
+          - condition: state
+            entity: binary_sensor.workday_sensor
+            state: 'on'
+    icon: mdi:dumbbell
+    cards: []
+  - type: sections
+    max_columns: 4
+    path: office
+    subview: true
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            icon: mdi:chevron-right
+            heading: Work
+            heading_style: title
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main
+            card_mod:
+              style: |
+                ha-card {
+                  margin-top: -15px !important;
+                }
+                ha-card .container .content {
+                  flex-direction: row-reverse !important;
+                  margin-left: -22px !important;
+                  color: rgb(148,148,148) !important;
+                  font-size: 18px !important;
+                  font-weight: 400 !important;
+                }
+                ha-card .container .content ha-icon {
+                  padding-left: 10px;
+                  --mdc-icon-size: 24px !important;
+                }
+          - type: custom:mushroom-entity-card
+            entity: binary_sensor.garretts_mac_mini_active
+            name: Mac Mini
+            tap_action:
+              action: none
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+            secondary_info: last-changed
+          - type: custom:mushroom-entity-card
+            entity: sensor.garretts_mac_mini_active_camera
+            name: Camera Status
+            tap_action:
+              action: none
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+            secondary_info: last-changed
+            icon_color: disabled
+          - type: custom:mushroom-entity-card
+            entity: binary_sensor.garretts_macbook_air_active
+            name: Macbook Air
+            tap_action:
+              action: none
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+            secondary_info: last-changed
+        visibility:
+          - condition: state
+            entity: binary_sensor.workday_sensor
+            state: 'on'
+      - type: grid
+        cards:
+          - type: heading
+            icon: mdi:chevron-right
+            heading: Office
+            heading_style: title
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main
+            card_mod:
+              style: |
+                ha-card {
+                  margin-top: -15px !important;
+                }
+                ha-card .container .content {
+                  flex-direction: row-reverse !important;
+                  margin-left: -22px !important;
+                  color: rgb(148,148,148) !important;
+                  font-size: 18px !important;
+                  font-weight: 400 !important;
+                }
+                ha-card .container .content ha-icon {
+                  padding-left: 10px;
+                  --mdc-icon-size: 24px !important;
+                }
+          - type: custom:mushroom-entity-card
+            entity: switch.lamp_outlet
+            tap_action:
+              action: toggle
+          - type: custom:mushroom-entity-card
+            entity: light.desk_light
+            tap_action:
+              action: toggle
+            card_mod:
+              style: |
+                ha-state-icon {
+                  color: rgb({{ state_attr("light.desk_light", "rgb_color")[0] }}, {{ state_attr("light.desk_light", "rgb_color")[1] }}, {{ state_attr("light.desk_light", "rgb_color")[2] }}) !important;
+                }
+                mushroom-shape-icon  {
+                  --shape-color: rgb({{ state_attr("light.desk_light", "rgb_color")[0] }}, {{ state_attr("light.desk_light", "rgb_color")[1] }}, {{ state_attr("light.desk_light", "rgb_color")[2] }}, 0.20) !important;
+                }
+          - type: custom:mushroom-entity-card
+            entity: light.desk_light_strip
+            tap_action:
+              action: toggle
+            double_tap_action:
+              action: none
+            hold_action:
+              action: none
+          - type: custom:mini-media-player
+            entity: media_player.office_echo_dot
+            group: false
+            artwork: cover
+            source: icon
+            sound_mode: full
+            info: scroll
+    badges:
+      - type: custom:mushroom-template-badge
+        content: '{{ states(''sensor.office_lights_on'') }}'
+        icon: mdi:lightbulb-on
+        color: amber
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-main/devices
+        hold_action:
+          action: none
+        double_tap_action:
+          action: none
+      - type: custom:mushroom-template-badge
+        content: '{{ states(''sensor.office_switches_on'') }}'
+        icon: mdi:power-plug-outline
+        color: cornflowerblue
+        double_tap_action:
+          action: none
+        hold_action:
+          action: none
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-main/devices
+      - type: entity
+        show_name: false
+        show_state: false
+        show_icon: true
+        entity: script.announce_office
+        color: dark-grey
+        show_entity_picture: false
+        icon: mdi:bullhorn
+    icon: mdi:desk
+    cards: []
+  - type: sections
+    max_columns: 4
+    path: laundry
+    theme: Mushroom
+    subview: true
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            icon: mdi:chevron-right
+            heading: Laundry
+            heading_style: title
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main
+            card_mod:
+              style: |
+                ha-card {
+                  margin-top: -15px !important;
+                }
+                ha-card .container .content {
+                  flex-direction: row-reverse !important;
+                  margin-left: -22px !important;
+                  color: rgb(148,148,148) !important;
+                  font-size: 18px !important;
+                  font-weight: 400 !important;
+                }
+                ha-card .container .content ha-icon {
+                  padding-left: 10px;
+                  --mdc-icon-size: 24px !important;
+                }
+        visibility:
+          - condition: state
+            entity: binary_sensor.workday_sensor
+            state: 'on'
+    icon: mdi:washing-machine
+    cards: []
+  - type: sections
+    max_columns: 4
+    path: garage
+    theme: Mushroom
+    subview: true
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            icon: mdi:chevron-right
+            heading: Garage
+            heading_style: title
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main
+            card_mod:
+              style: |
+                ha-card {
+                  margin-top: -15px !important;
+                }
+                ha-card .container .content {
+                  flex-direction: row-reverse !important;
+                  margin-left: -22px !important;
+                  color: rgb(148,148,148) !important;
+                  font-size: 18px !important;
+                  font-weight: 400 !important;
+                }
+                ha-card .container .content ha-icon {
+                  padding-left: 10px;
+                  --mdc-icon-size: 24px !important;
+                }
+        visibility:
+          - condition: state
+            entity: binary_sensor.workday_sensor
+            state: 'on'
+    icon: mdi:car
+    cards: []
+  - type: sections
+    max_columns: 4
+    path: outside
+    icon: mdi:tree-outline
+    theme: Mushroom
+    subview: true
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            icon: mdi:chevron-right
+            heading: Outside
+            heading_style: title
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-main
+            card_mod:
+              style: |
+                ha-card {
+                  margin-top: -15px !important;
+                }
+                ha-card .container .content {
+                  flex-direction: row-reverse !important;
+                  margin-left: -22px !important;
+                  color: rgb(148,148,148) !important;
+                  font-size: 18px !important;
+                  font-weight: 400 !important;
+                }
+                ha-card .container .content ha-icon {
+                  padding-left: 10px;
+                  --mdc-icon-size: 24px !important;
+                }
+        visibility:
+          - condition: state
+            entity: binary_sensor.workday_sensor
+            state: 'on'
