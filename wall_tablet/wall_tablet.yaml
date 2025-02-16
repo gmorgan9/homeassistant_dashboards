@@ -1,0 +1,1683 @@
+views:
+  - kiosk_mode:
+      hide_header: true
+    title: Home
+    type: panel
+    panel: true
+    cards:
+      - type: custom:layout-card
+        layout_type: custom:grid-layout
+        cards:
+          - type: vertical-stack
+            cards:
+              - type: custom:mushroom-title-card
+                title: >-
+                  {{ (strptime(states('sensor.time'), '%H:%M') |
+                  as_datetime).strftime('%I:%M %p') }}
+                title_tap_action:
+                  action: none
+                subtitle_tap_action:
+                  action: none
+                subtitle: >-
+                  {{ states('sensor.date') | as_timestamp | timestamp_custom('%d
+                  %B %Y') }}
+                alignment: center
+                card_mod:
+                  style: |
+                    ha-card {
+                    }
+                    .title {
+                      font-size: 75px !important;
+                      margin-bottom: 35px !important;
+                    }
+                    .subtitle {
+                      font-size: 28px !important;
+                    }
+              - type: custom:mushroom-chips-card
+                chips:
+                  - type: entity
+                    entity: person.garrett_morgan
+                    hold_action:
+                      action: none
+                    double_tap_action:
+                      action: none
+                    use_entity_picture: true
+                  - type: entity
+                    entity: person.megan
+                    content_info: name
+                    use_entity_picture: true
+                alignment: center
+                card_mod:
+                  style: |
+                    ha-card {
+                      --chip-height: 50px !important;
+                    }
+              - show_current: true
+                show_forecast: false
+                type: weather-forecast
+                entity: weather.pirateweather
+                forecast_type: daily
+                secondary_info_attribute: humidity
+                theme: Mushroom
+                name: Anna, TX
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: rgb(25, 25, 25, .8)
+                    }
+                    .name {
+                      margin-top: 5px;
+                    }
+                    .attribute {
+                      margin-top: 5px;
+                    }
+              - type: horizontal-stack
+                cards:
+                  - type: custom:mushroom-template-card
+                    primary: >-
+                      {% if state_attr('climate.thermostat', 'hvac_action') ==
+                      'heating' %}
+                        Heating
+                      {% elif state_attr('climate.thermostat', 'hvac_action') ==
+                      'cooling' %}
+                        Cooling
+                      {% elif state_attr('climate.thermostat', 'hvac_action') ==
+                      'idle' %}
+                        Idle
+                      {% else %}
+                        disabled
+                      {% endif %}
+                    secondary: >-
+                      {% if state_attr('climate.thermostat', 'hvac_action') ==
+                      'heating' %}
+                        {{ state_attr('climate.thermostat', 'fan_mode').split(' ')[0] }} · {{ state_attr('climate.thermostat', 'temperature') }}°F
+                      {% elif state_attr('climate.thermostat', 'hvac_action') ==
+                      'cooling' %}
+                        {{ state_attr('climate.thermostat', 'fan_mode').split(' ')[0] }} · {{ state_attr('climate.thermostat', 'temperature') }}°F
+                      {% elif state_attr('climate.thermostat', 'hvac_action') ==
+                      'idle' %}
+                        {{ state_attr('climate.thermostat', 'fan_mode').split(' ')[0] }} · {{ state_attr('climate.thermostat', 'temperature') }}°F
+                      {% else %}
+                        {{ state_attr('climate.thermostat', 'fan_mode').split(' ')[0] }} · {{ state_attr('climate.thermostat', 'temperature') }}°F
+                      {% endif %}
+                    icon: mdi:home-thermometer
+                    layout: vertical
+                    entity: climate.thermostat
+                    icon_color: >-
+                      {% if state_attr('climate.thermostat', 'hvac_action') ==
+                      'heating' %}
+                        amber
+                      {% elif state_attr('climate.thermostat', 'hvac_action') ==
+                      'cooling' %}
+                        blue
+                      {% elif state_attr('climate.thermostat', 'hvac_action') ==
+                      'idle' %}
+                        disabled
+                      {% else %}
+                        disabled
+                      {% endif %}
+                    badge_icon: >-
+                      {% if state_attr('climate.thermostat', 'hvac_action') ==
+                      'heating' %}
+                        mdi:fire
+                      {% elif state_attr('climate.thermostat', 'hvac_action') ==
+                      'cooling' %}
+                        mdi:snowflake
+                      {% elif state_attr('climate.thermostat', 'hvac_action') ==
+                      'idle' %}
+                        mdi:clock-outline
+                      {% else %}
+                        disabled
+                      {% endif %}
+                    badge_color: disabled
+                    tap_action:
+                      action: more-info
+                    hold_action:
+                      action: none
+                    double_tap_action:
+                      action: none
+                    card_mod:
+                      style: |
+                        :host {
+                          --mush-icon-size: 64px;
+                          --mush-badge-size: 20px;
+                        }
+                        ha-card {
+                          background: none;
+                        }
+                  - type: custom:mushroom-template-card
+                    primary: Front Door
+                    secondary: |-
+                      {% if is_state("lock.front_door", "locked") %}
+                        Locked
+                      {%else%}
+                        Unlocked
+                      {%endif%}
+                    icon: |-
+                      {% if is_state("lock.front_door", "locked") %}
+                        mdi:lock
+                      {%else%}
+                        mdi:lock-open-variant
+                      {%endif%}
+                    layout: vertical
+                    entity: lock.front_door
+                    icon_color: |-
+                      {% if is_state("lock.front_door", "locked") %}
+                        green
+                      {%else%}
+                        red
+                      {%endif%}
+                    badge_icon: ''
+                    badge_color: ''
+                    tap_action:
+                      action: toggle
+                    hold_action:
+                      action: none
+                    double_tap_action:
+                      action: none
+                    card_mod:
+                      style: |
+                        :host {
+                          --mush-icon-size: 64px;
+                        }
+                        ha-card {
+                          background: none;
+                        }
+              - type: horizontal-stack
+                cards:
+                  - type: custom:mushroom-template-card
+                    primary: Security
+                    secondary: >
+                      {% if is_state("alarm_control_panel.smart_home_alarm",
+                      "armed_home") %}
+                        Armed Home
+                      {% elif is_state("alarm_control_panel.smart_home_alarm",
+                      "armed_away") %}
+                        Armed Away
+                      {% elif is_state("alarm_control_panel.smart_home_alarm",
+                      "disarmed") %}
+                        Disarmed
+                      {% endif %}
+                    icon: >
+                      {% if is_state("alarm_control_panel.smart_home_alarm",
+                      "armed_home") %}
+                        mdi:shield-home
+                      {% elif is_state("alarm_control_panel.smart_home_alarm",
+                      "armed_away") %}
+                        mdi:shield-lock
+                      {% elif is_state("alarm_control_panel.smart_home_alarm",
+                      "disarmed") %}
+                        mdi:shield-off
+                      {% else %}
+                        disabled
+                      {% endif %}
+                    layout: vertical
+                    icon_color: >
+                      {% if is_state("alarm_control_panel.smart_home_alarm",
+                      "armed_home") %}
+                        blue
+                      {% elif is_state("alarm_control_panel.smart_home_alarm",
+                      "armed_away") %}
+                        red
+                      {% elif is_state("alarm_control_panel.smart_home_alarm",
+                      "disarmed") %}
+                        disabled
+                      {% else %}
+                        disabled
+                      {% endif %}
+                    badge_icon: ''
+                    badge_color: ''
+                    hold_action:
+                      action: none
+                    double_tap_action:
+                      action: none
+                    tap_action:
+                      action: navigate
+                      navigation_path: /wall-tablet/security
+                    card_mod:
+                      style: |
+                        :host {
+                          --mush-icon-size: 64px;
+                        }
+                        ha-card {
+                          background: none;
+                        }
+                  - type: custom:mushroom-template-card
+                    primary: Change Sheets
+                    secondary: >
+                      in {{ 21 -(states('counter.sheet_change_counter') | int)
+                      }} days
+                    icon: mdi:bed-empty
+                    layout: vertical
+                    icon_color: >
+                      {% if (states('counter.sheet_change_counter') | int) >= 21
+                      %}
+                        red
+                      {% else %}
+                        indigo
+                      {% endif %}
+                    tap_action:
+                      action: more-info
+                    hold_action:
+                      action: none
+                    double_tap_action:
+                      action: none
+                    badge_icon: >
+                      {% if (states('counter.sheet_change_counter') | int) >= 21
+                      %}
+                        mdi:exclamation
+                      {% else %}
+                        none
+                      {% endif %}
+                    badge_color: >
+                      {% if (states('counter.sheet_change_counter') | int) >= 21
+                      %}
+                        red
+                      {% else %}
+                        none
+                      {% endif %}
+                    card_mod:
+                      style: |
+                        :host {
+                          --mush-icon-size: 64px;
+                          --mush-badge-size: 20px;
+                        }
+                        ha-card {
+                          background: none;
+                        }
+              - type: horizontal-stack
+                cards:
+                  - type: conditional
+                    conditions:
+                      - condition: state
+                        entity: input_boolean.reminder_bring_in_garbage_bins
+                        state: 'on'
+                    card:
+                      type: horizontal-stack
+                      cards:
+                        - type: custom:mushroom-template-card
+                          primary: Bring in Garbage Bins
+                          secondary: ''
+                          icon: mdi:trash-can-outline
+                          layout: vertical
+                          icon_color: red
+                          tap_action:
+                            action: perform-action
+                            perform_action: input_boolean.turn_off
+                            target:
+                              entity_id: input_boolean.reminder_bring_in_garbage_bins
+                          hold_action:
+                            action: none
+                          double_tap_action:
+                            action: none
+                          badge_icon: ''
+                          badge_color: ''
+                          entity: input_boolean.reminder_bring_in_garbage_bins
+                          card_mod:
+                            style: |
+                              :host {
+                                --mush-icon-size: 64px;
+                                --mush-badge-size: 20px;
+                              }
+                              ha-card {
+                                background: none;
+                              }
+                  - type: conditional
+                    conditions:
+                      - condition: state
+                        entity: input_boolean.reminder_take_out_garbage_bins
+                        state: 'on'
+                    card:
+                      type: horizontal-stack
+                      cards:
+                        - type: custom:mushroom-template-card
+                          primary: Put out Garbage Bins
+                          secondary: ''
+                          icon: mdi:trash-can
+                          layout: vertical
+                          icon_color: amber
+                          tap_action:
+                            action: perform-action
+                            perform_action: input_boolean.turn_off
+                            target:
+                              entity_id: input_boolean.reminder_take_out_garbage_bins
+                          hold_action:
+                            action: none
+                          double_tap_action:
+                            action: none
+                          badge_icon: ''
+                          badge_color: ''
+                          entity: input_boolean.reminder_take_out_garbage_bins
+                          card_mod:
+                            style: |
+                              :host {
+                                --mush-icon-size: 64px;
+                                --mush-badge-size: 20px;
+                              }
+                              ha-card {
+                                background: none;
+                              }
+            view_layout:
+              grid-area: col-1
+          - type: vertical-stack
+            cards:
+              - type: heading
+                icon: mdi:lamps
+                heading: Lighting
+                heading_style: title
+                card_mod:
+                  style: |
+                    .title {
+                      font-size: 25px !important;
+                      line-height: 30px !important;
+                      margin-bottom: -3.5px !important;
+                    }
+                    ha-icon {
+                      --mdc-icon-size: 25px !important;
+                    }
+              - type: markdown
+                content: '---'
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: none;
+                      width: 50%;
+                      margin-top: -5px !important;
+                      margin-bottom: -5px !important;
+                    }
+              - type: horizontal-stack
+                cards:
+                  - type: custom:mushroom-template-card
+                    primary: Front Porch
+                    secondary: |-
+                      {% if is_state("light.front_porch_light", "on") %}
+                        On
+                      {%else%}
+                        Off
+                      {%endif%}
+                    icon: |-
+                      {% if is_state("light.front_porch_light", "on") %}
+                        mdi:lightbulb-on
+                      {%else%}
+                        mdi:lightbulb-outline
+                      {%endif%}
+                    entity: light.front_porch_light
+                    icon_color: ''
+                    tap_action:
+                      action: toggle
+                    hold_action:
+                      action: more-info
+                    double_tap_action:
+                      action: none
+                    card_mod:
+                      style: |
+                        :host {
+                          --mush-icon-size: 64px;
+                          --mush-badge-size: 20px;
+                        }
+                        mushroom-shape-icon {
+                          --shape-color: {% if is_state("light.front_porch_light", "on") %} rgba({{ state_attr('light.front_porch_light', 'rgb_color') | join(', ') }}, 0.2) !important; {% else %}{% endif %}
+                          --icon-color: {% if is_state("light.front_porch_light", "on") %} rgb({{ state_attr('light.front_porch_light', 'rgb_color') | join(', ') }}) !important; {% else %}{% endif %}
+                        }
+                        ha-card {
+                          border-radius: 15px !important;
+                          background: rgb(25, 25, 25, .8) !important;
+                          # width: 65%;
+                        }
+                  - type: custom:mushroom-template-card
+                    primary: Desk Light
+                    secondary: |-
+                      {% if is_state("light.desk_light", "on") %}
+                        On
+                      {%else%}
+                        Off
+                      {%endif%}
+                    icon: |-
+                      {% if is_state("light.desk_light", "on") %}
+                        mdi:lightbulb-on
+                      {%else%}
+                        mdi:lightbulb-outline
+                      {%endif%}
+                    icon_color: |-
+                      {% if is_state("light.desk_light", "on") %}
+                        amber
+                      {%else%}
+                        disabled
+                      {%endif%}
+                    entity: light.desk_light
+                    tap_action:
+                      action: toggle
+                    hold_action:
+                      action: none
+                    double_tap_action:
+                      action: none
+                    card_mod:
+                      style: |
+                        :host {
+                          --mush-icon-size: 64px;
+                          --mush-badge-size: 20px;
+                        }
+                        mushroom-shape-icon {
+                          --shape-color: {% if is_state("light.desk_light", "on") %} rgba({{ state_attr('light.desk_light', 'rgb_color') | join(', ') }}, 0.2) !important; {% else %}{% endif %}
+                          --icon-color: {% if is_state("light.desk_light", "on") %} rgb({{ state_attr('light.desk_light', 'rgb_color') | join(', ') }}) !important; {% else %}{% endif %}
+                        }
+                        ha-card {
+                          border-radius: 15px !important;
+                          background: rgb(25, 25, 25, .8) !important;
+                          # width: 65%;
+                          # margin-left: -35%;
+                        }
+              - type: horizontal-stack
+                cards:
+                  - type: custom:mushroom-template-card
+                    primary: Desk LED Strip
+                    secondary: |-
+                      {% if is_state("light.desk_light_strip", "on") %}
+                        On
+                      {%else%}
+                        Off
+                      {%endif%}
+                    icon: |-
+                      {% if is_state("light.desk_light_strip", "on") %}
+                        mdi:led-strip-variant
+                      {%else%}
+                        mdi:led-strip-variant-off
+                      {%endif%}
+                    entity: light.desk_light_strip
+                    tap_action:
+                      action: toggle
+                    hold_action:
+                      action: more-info
+                    double_tap_action:
+                      action: none
+                    card_mod:
+                      style: |
+                        :host {
+                          --mush-icon-size: 64px;
+                          --mush-badge-size: 20px;
+                          
+                        }
+                        mushroom-shape-icon {
+                          --shape-color: {% if is_state("light.desk_light_strip", "on") %} rgba({{ state_attr('light.desk_light_strip', 'rgb_color') | join(', ') }}, 0.2) !important; {% else %}{% endif %}
+                          --icon-color: {% if is_state("light.desk_light_strip", "on") %} rgb({{ state_attr('light.desk_light_strip', 'rgb_color') | join(', ') }}) !important; {% else %}{% endif %}
+                        }
+                        ha-card {
+                          border-radius: 15px !important;
+                          background: rgb(25, 25, 25, .8) !important;
+                          width: 50%;
+                        }
+              - type: custom:gap-card
+                card_mod:
+                  style: |
+                    gap-card {
+                      height: 10px !important;
+                    }
+              - type: heading
+                icon: mdi:power-plug
+                heading: Outlets
+                heading_style: title
+                card_mod:
+                  style: |
+                    .title {
+                      font-size: 25px !important;
+                      line-height: 30px !important;
+                      margin-bottom: -3.5px !important;
+                    }
+                    ha-icon {
+                      --mdc-icon-size: 25px !important;
+                    }
+              - type: markdown
+                content: '---'
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: none;
+                      width: 50%;
+                      margin-top: -5px !important;
+                      margin-bottom: -5px !important;
+                    }
+              - type: horizontal-stack
+                cards:
+                  - type: custom:mushroom-template-card
+                    primary: Phone Charger
+                    secondary: |-
+                      {% if is_state("switch.phone_charger", "on") %}
+                        Charging ({{ states('sensor.iphone_battery_level') }}%)
+                      {%else%}
+                        Off ({{ states('sensor.iphone_battery_level') }}%)
+                      {%endif%}
+                    icon: |-
+                      {% if is_state("switch.phone_charger", "on") %}
+                        mdi:lightning-bolt
+                      {%else%}
+                        mdi:lightning-bolt-outline
+                      {%endif%}
+                    entity: switch.phone_charger
+                    icon_color: |-
+                      {% if is_state("switch.phone_charger", "on") %}
+                        green
+                      {%else%}
+                        disabled
+                      {%endif%}
+                    tap_action:
+                      action: toggle
+                    hold_action:
+                      action: more-info
+                    double_tap_action:
+                      action: none
+                    card_mod:
+                      style: |
+                        :host {
+                          --mush-icon-size: 64px;
+                          --mush-badge-size: 20px;
+                        }
+                        ha-card {
+                          border-radius: 15px !important;
+                          background: rgb(25, 25, 25, .8) !important;
+                          # width: 65%;
+                        }
+                  - type: custom:mushroom-template-card
+                    primary: Tablet Charger
+                    secondary: >-
+                      {% if is_state("switch.wall_tablet_charger_outlet", "on")
+                      %}
+                        Charging ({{ states('sensor.ipad_battery_level') }}%)
+                      {%else%}
+                        Off ({{ states('sensor.ipad_battery_level') }}%)
+                      {%endif%}
+                    icon: >-
+                      {% if is_state("switch.wall_tablet_charger_outlet", "on")
+                      %}
+                        mdi:lightning-bolt
+                      {%else%}
+                        mdi:lightning-bolt-outline
+                      {%endif%}
+                    icon_color: >-
+                      {% if is_state("switch.wall_tablet_charger_outlet", "on")
+                      %}
+                        green
+                      {%else%}
+                        disabled
+                      {%endif%}
+                    entity: switch.wall_tablet_charger_outlet
+                    tap_action:
+                      action: toggle
+                    hold_action:
+                      action: none
+                    double_tap_action:
+                      action: none
+                    card_mod:
+                      style: |
+                        :host {
+                          --mush-icon-size: 64px;
+                          --mush-badge-size: 20px;
+                        }
+                        ha-card {
+                          border-radius: 15px !important;
+                          background: rgb(25, 25, 25, .8) !important;
+                          # width: 65%;
+                          # margin-left: -35%;
+                        }
+              - type: horizontal-stack
+                cards:
+                  - type: custom:mushroom-template-card
+                    primary: Watch Charger
+                    secondary: >-
+                      {% if is_state("switch.apple_watch_charger_outlet", "on")
+                      %}
+                        Charging ({{ as_timestamp(state_attr('timer.watch_charger_timer', 'finishes_at')) | timestamp_custom('%I:%M %p') }})
+                      {%else%}
+                        Off
+                      {%endif%}
+                    icon: >-
+                      {% if is_state("switch.apple_watch_charger_outlet", "on")
+                      %}
+                        mdi:lightning-bolt
+                      {%else%}
+                        mdi:lightning-bolt-outline
+                      {%endif%}
+                    entity: switch.apple_watch_charger_outlet
+                    icon_color: >-
+                      {% if is_state("switch.apple_watch_charger_outlet", "on")
+                      %}
+                        green
+                      {%else%}
+                        disabled
+                      {%endif%}
+                    tap_action:
+                      action: toggle
+                    hold_action:
+                      action: more-info
+                    double_tap_action:
+                      action: none
+                    card_mod:
+                      style: |
+                        :host {
+                          --mush-icon-size: 64px;
+                          --mush-badge-size: 20px;
+                        }
+                        ha-card {
+                          border-radius: 15px !important;
+                          background: rgb(25, 25, 25, .8) !important;
+                          # width: 65%;
+                        }
+                  - type: custom:mushroom-template-card
+                    primary: Office Lamp
+                    secondary: |-
+                      {% if is_state("switch.smart_plug", "on") %}
+                        On
+                      {%else%}
+                        Off
+                      {%endif%}
+                    icon: |-
+                      {% if is_state("switch.smart_plug", "on") %}
+                        mdi:lamp
+                      {%else%}
+                        mdi:lamp-outline
+                      {%endif%}
+                    entity: switch.smart_plug
+                    icon_color: |-
+                      {% if is_state("switch.smart_plug", "on") %}
+                        amber
+                      {%else%}
+                        disabled
+                      {%endif%}
+                    tap_action:
+                      action: toggle
+                    hold_action:
+                      action: none
+                    double_tap_action:
+                      action: none
+                    card_mod:
+                      style: |
+                        :host {
+                          --mush-icon-size: 64px;
+                          --mush-badge-size: 20px;
+                        }
+                        ha-card {
+                          border-radius: 15px !important;
+                          background: rgb(25, 25, 25, .8) !important;
+                          # width: 50%;
+                        }
+            view_layout:
+              grid-area: col-2
+          - type: vertical-stack
+            cards:
+              - type: heading
+                icon: mdi:palette
+                heading: Scenes
+                heading_style: title
+                card_mod:
+                  style: |
+                    .title {
+                      font-size: 25px !important;
+                      line-height: 30px !important;
+                      margin-bottom: -3.5px !important;
+                    }
+                    ha-icon {
+                      --mdc-icon-size: 25px !important;
+                    }
+              - type: markdown
+                content: '---'
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: none;
+                      width: 50%;
+                      margin-top: -5px !important;
+                      margin-bottom: -5px !important;
+                    }
+              - type: horizontal-stack
+                cards:
+                  - type: custom:mushroom-template-card
+                    primary: Good Night
+                    secondary: ''
+                    icon: mdi:weather-night
+                    entity: scene.good_night
+                    icon_color: blue
+                    tap_action:
+                      action: toggle
+                    hold_action:
+                      action: none
+                    double_tap_action:
+                      action: none
+                    card_mod:
+                      style: |
+                        :host {
+                          --mush-icon-size: 64px;
+                          --mush-badge-size: 20px;
+                        }
+                        ha-card {
+                          border-radius: 15px !important;
+                          background: rgb(25, 25, 25, .8) !important;
+                          width: 50%;
+                        }
+              - type: custom:gap-card
+                card_mod:
+                  style: |
+                    gap-card {
+                      height: 10px !important;
+                    }
+              - type: heading
+                icon: mdi:television
+                heading: Media
+                heading_style: title
+                card_mod:
+                  style: |
+                    .title {
+                      font-size: 25px !important;
+                      line-height: 30px !important;
+                      margin-bottom: -3.5px !important;
+                    }
+                    ha-icon {
+                      --mdc-icon-size: 25px !important;
+                    }
+              - type: markdown
+                content: '---'
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: none;
+                      width: 50%;
+                      margin-top: -5px !important;
+                      margin-bottom: -5px !important;
+                    }
+              - type: horizontal-stack
+                cards:
+                  - type: custom:mushroom-template-card
+                    primary: Living room TV
+                    secondary: |-
+                      {% if is_state("media_player.main_tv", "playing") %}
+                        Playing: {{ state_attr('media_player.main_tv', 'app_id').split('.')[-1] | capitalize }}
+                      {%else%}
+                        Off
+                      {%endif%}
+                    icon: |-
+                      {% if is_state("media_player.main_tv", "playing") %}
+                        mdi:television
+                      {%else%}
+                        mdi:television-off
+                      {%endif%}
+                    icon_color: |-
+                      {% if is_state("media_player.main_tv", "playing") %}
+                        blue
+                      {%else%}
+                        disabled
+                      {%endif%}
+                    tap_action:
+                      action: more-info
+                    hold_action:
+                      action: none
+                    double_tap_action:
+                      action: none
+                    entity: media_player.main_tv
+                    card_mod:
+                      style: |
+                        :host {
+                          --mush-icon-size: 64px;
+                          --mush-badge-size: 20px;
+                        }
+                        ha-card {
+                          border-radius: 15px !important;
+                          background: rgb(25, 25, 25, .8) !important;
+                          # width: 65%;
+                        }
+                  - type: custom:mushroom-template-card
+                    primary: Master TV
+                    secondary: |-
+                      {% if is_state("media_player.master_tv", "playing") %}
+                        Playing: {{ state_attr('media_player.master_tv', 'app_id').split('.')[-1] | capitalize }}
+                      {%else%}
+                        Off
+                      {%endif%}
+                    icon: |-
+                      {% if is_state("media_player.master_tv", "playing") %}
+                        mdi:television
+                      {%else%}
+                        mdi:television-off
+                      {%endif%}
+                    icon_color: |-
+                      {% if is_state("media_player.master_tv", "playing") %}
+                        blue
+                      {%else%}
+                        disabled
+                      {%endif%}
+                    tap_action:
+                      action: more-info
+                    hold_action:
+                      action: none
+                    double_tap_action:
+                      action: none
+                    entity: media_player.master_tv
+                    card_mod:
+                      style: |
+                        :host {
+                          --mush-icon-size: 64px;
+                          --mush-badge-size: 20px;
+                        }
+                        ha-card {
+                          border-radius: 15px !important;
+                          background: rgb(25, 25, 25, .8) !important;
+                          # width: 65%;
+                        }
+              - type: horizontal-stack
+                cards:
+                  - type: custom:mushroom-template-card
+                    primary: Echo Show
+                    secondary: >-
+                      {% if is_state("media_player.kitchen_echo_show",
+                      "playing") %}
+                        Playing: {{ state_attr('media_player.kitchen_echo_show', 'media_artist') | capitalize }}
+                      {%else%}
+                        Off
+                      {%endif%}
+                    icon: >-
+                      {% if is_state("media_player.kitchen_echo_show",
+                      "playing") %}
+                        mdi:speaker
+                      {%else%}
+                        mdi:speaker-off
+                      {%endif%}
+                    icon_color: >-
+                      {% if is_state("media_player.kitchen_echo_show",
+                      "playing") %}
+                        blue
+                      {%else%}
+                        disabled
+                      {%endif%}
+                    tap_action:
+                      action: more-info
+                    hold_action:
+                      action: none
+                    double_tap_action:
+                      action: none
+                    entity: media_player.kitchen_echo_show
+                    card_mod:
+                      style: |
+                        :host {
+                          --mush-icon-size: 64px;
+                          --mush-badge-size: 20px;
+                        }
+                        ha-card {
+                          border-radius: 15px !important;
+                          background: rgb(25, 25, 25, .8) !important;
+                          # width: 65%;
+                        }
+                  - type: custom:mushroom-template-card
+                    primary: Echo Dot
+                    secondary: >-
+                      {% if is_state("media_player.office_echo_dot", "playing")
+                      %}
+                        Playing: {{ state_attr('media_player.office_echo_dot', 'media_artist') }}
+                      {%else%}
+                        Off
+                      {%endif%}
+                    icon: >-
+                      {% if is_state("media_player.office_echo_dot", "playing")
+                      %}
+                        mdi:speaker
+                      {%else%}
+                        mdi:speaker-off
+                      {%endif%}
+                    icon_color: >-
+                      {% if is_state("media_player.office_echo_dot", "playing")
+                      %}
+                        blue
+                      {%else%}
+                        disabled
+                      {%endif%}
+                    tap_action:
+                      action: more-info
+                    hold_action:
+                      action: none
+                    double_tap_action:
+                      action: none
+                    entity: media_player.office_echo_dot
+                    card_mod:
+                      style: |
+                        :host {
+                          --mush-icon-size: 64px;
+                          --mush-badge-size: 20px;
+                        }
+                        ha-card {
+                          border-radius: 15px !important;
+                          background: rgb(25, 25, 25, .8) !important;
+                          # width: 65%;
+                        }
+              - type: horizontal-stack
+                cards:
+                  - type: custom:mushroom-template-card
+                    primary: Flex Room
+                    secondary: >-
+                      {% if is_state("media_player.flex_room_speaker",
+                      "playing") %}
+                        {{ state_attr('media_player.flex_room_speaker', 'app_name') }} ({{ states('sensor.flex_room_speaker_volume') }}%)
+                      {%else%}
+                        Off
+                      {%endif%}
+                    icon: >-
+                      {% if is_state("media_player.flex_room_speaker",
+                      "playing") %}
+                        mdi:speaker
+                      {%else%}
+                        mdi:speaker-off
+                      {%endif%}
+                    icon_color: >-
+                      {% if is_state("media_player.flex_room_speaker",
+                      "playing") %}
+                        blue
+                      {%else%}
+                        disabled
+                      {%endif%}
+                    tap_action:
+                      action: perform-action
+                      perform_action: script.plex_media_server_play
+                      target: {}
+                    hold_action:
+                      action: perform-action
+                      perform_action: media_player.turn_off
+                      target:
+                        entity_id: media_player.flex_room_speaker
+                    double_tap_action:
+                      action: none
+                    entity: media_player.flex_room_speaker
+                    card_mod:
+                      style: |
+                        :host {
+                          --mush-icon-size: 64px;
+                          --mush-badge-size: 20px;
+                        }
+                        ha-card {
+                          border-radius: 15px !important;
+                          background: rgb(25, 25, 25, .8) !important;
+                          # width: 65%;
+                        }
+                  - type: custom:mushroom-template-card
+                    primary: Master Speaker
+                    secondary: |-
+                      {% if is_state("media_player.homepod_mini", "playing") %}
+                        Playing: {{ state_attr('media_player.homepod_mini', 'app_name') }}
+                      {%else%}
+                        Off
+                      {%endif%}
+                    icon: |-
+                      {% if is_state("media_player.homepod_mini", "playing") %}
+                        mdi:speaker
+                      {%else%}
+                        mdi:speaker-off
+                      {%endif%}
+                    icon_color: |-
+                      {% if is_state("media_player.homepod_mini", "playing") %}
+                        blue
+                      {%else%}
+                        disabled
+                      {%endif%}
+                    tap_action:
+                      action: more-info
+                    hold_action:
+                      action: none
+                    double_tap_action:
+                      action: none
+                    entity: media_player.homepod_mini
+                    card_mod:
+                      style: |
+                        :host {
+                          --mush-icon-size: 64px;
+                          --mush-badge-size: 20px;
+                        }
+                        ha-card {
+                          border-radius: 15px !important;
+                          background: rgb(25, 25, 25, .8) !important;
+                          # width: 65%;
+                        }
+            card_mod:
+              style: |
+                ha-card {
+                  margin-left: -35% !important;
+                }
+        layout:
+          margin: 10px
+          padding: 0
+          display: grid
+          grid-template-columns: 350px 400px 400px
+          grid-template-areas: |
+            "col-1 col-2 col-3"
+          gap: 50px
+    theme: Mushroom
+    background:
+      opacity: 84
+      alignment: center
+      size: cover
+      repeat: repeat
+      attachment: fixed
+    icon: mdi:home
+    subview: false
+    path: home
+  - type: panel
+    title: Security
+    path: security
+    icon: mdi:cctv
+    theme: Mushroom
+    subview: true
+    sections: []
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: heading
+            icon: ''
+            heading: Cameras
+            heading_style: title
+            tap_action:
+              action: navigate
+              navigation_path: /wall-tablet
+            card_mod:
+              style: |
+                .title {
+                  font-size: 28px !important;
+                  margin-bottom: 15px;
+                  margin-top: 15px;
+                }
+          - square: false
+            type: grid
+            cards:
+              - type: custom:button-card
+                icon: mdi:video
+                show_name: false
+                show_label: false
+                styles:
+                  card:
+                    - border-radius: 20px
+                    - padding: 12px
+                  img_cell:
+                    - border-radius: 50%
+                    - place-self: center
+                    - width: 42px
+                    - height: 42px
+                  grid:
+                    - grid-template-areas: '''i item1'' ''i item1'' ''item2 item2'''
+                    - grid-template-columns: min-content auto
+                    - grid-template-rows: min-content min-content min-content
+                    - row-gap: 12px
+                custom_fields:
+                  item1:
+                    card:
+                      type: custom:button-card
+                      show_name: true
+                      show_label: true
+                      show_icon: true
+                      name: Front Door
+                      label: Live
+                      styles:
+                        card:
+                          - box-shadow: none
+                          - padding: '0'
+                        name:
+                          - align-self: end
+                          - justify-self: start
+                          - font-weight: bold
+                          - font-size: 14px
+                          - margin-left: 12px
+                          - filter: opacity(100%)
+                        label:
+                          - justify-self: start
+                          - align-self: start
+                          - font-weight: bolder
+                          - font-size: 12px
+                          - filter: opacity(40%)
+                          - margin-left: 12px
+                        grid:
+                          - grid-template-areas: '''n'' ''l'''
+                          - grid-template-columns: auto
+                          - grid-template-rows: min-content min-content
+                  item2:
+                    card:
+                      type: picture-entity
+                      camera_image: camera.front_door_live_view
+                      camera_view: live
+                      entity: camera.front_door_live_view
+                      show_name: false
+                      show_state: false
+                tap_action:
+                  action: more-info
+              - type: horizontal-stack
+                cards:
+                  - type: custom:button-card
+                    icon: mdi:video
+                    show_name: false
+                    show_label: false
+                    styles:
+                      card:
+                        - border-radius: 20px
+                        - padding: 12px
+                      img_cell:
+                        - border-radius: 50%
+                        - place-self: center
+                        - width: 42px
+                        - height: 42px
+                      grid:
+                        - grid-template-areas: '''i item1'' ''i item1'' ''item2 item2'''
+                        - grid-template-columns: min-content auto
+                        - grid-template-rows: min-content min-content min-content
+                        - row-gap: 12px
+                    custom_fields:
+                      item1:
+                        card:
+                          type: custom:button-card
+                          show_name: true
+                          show_label: true
+                          show_icon: true
+                          name: Back Door
+                          label: Idle
+                          styles:
+                            card:
+                              - box-shadow: none
+                              - padding: '0'
+                            name:
+                              - align-self: end
+                              - justify-self: start
+                              - font-weight: bold
+                              - font-size: 14px
+                              - margin-left: 12px
+                              - filter: opacity(100%)
+                            label:
+                              - justify-self: start
+                              - align-self: start
+                              - font-weight: bolder
+                              - font-size: 12px
+                              - filter: opacity(40%)
+                              - margin-left: 12px
+                            grid:
+                              - grid-template-areas: '''n'' ''l'''
+                              - grid-template-columns: auto
+                              - grid-template-rows: min-content min-content
+                      item2:
+                        card:
+                          type: picture-entity
+                          camera_image: camera.back_door
+                          camera_view: live
+                          entity: camera.back_door
+                          show_name: false
+                          show_state: false
+                    tap_action:
+                      action: more-info
+                  - type: custom:button-card
+                    icon: mdi:video
+                    show_name: false
+                    show_label: false
+                    styles:
+                      card:
+                        - border-radius: 20px
+                        - padding: 12px
+                      img_cell:
+                        - border-radius: 50%
+                        - place-self: center
+                        - width: 42px
+                        - height: 42px
+                      grid:
+                        - grid-template-areas: '''i item1'' ''i item1'' ''item2 item2'''
+                        - grid-template-columns: min-content auto
+                        - grid-template-rows: min-content min-content min-content
+                        - row-gap: 12px
+                    custom_fields:
+                      item1:
+                        card:
+                          type: custom:button-card
+                          show_name: true
+                          show_label: true
+                          show_icon: true
+                          name: Flex Room
+                          label: Idle
+                          styles:
+                            card:
+                              - box-shadow: none
+                              - padding: '0'
+                            name:
+                              - align-self: end
+                              - justify-self: start
+                              - font-weight: bold
+                              - font-size: 14px
+                              - margin-left: 12px
+                              - filter: opacity(100%)
+                            label:
+                              - justify-self: start
+                              - align-self: start
+                              - font-weight: bolder
+                              - font-size: 12px
+                              - filter: opacity(40%)
+                              - margin-left: 12px
+                            grid:
+                              - grid-template-areas: '''n'' ''l'''
+                              - grid-template-columns: auto
+                              - grid-template-rows: min-content min-content
+                      item2:
+                        card:
+                          type: custom:webrtc-camera
+                          url: rtsp://192.168.1.175/live0
+                          muted: true
+                          background: true
+                          style: '.mode {display: none}'
+                    tap_action:
+                      action: more-info
+            columns: 1
+          - type: heading
+            icon: ''
+            heading: Door Sensors (Placeholder)
+            heading_style: title
+            tap_action:
+              action: navigate
+              navigation_path: /wall-tablet
+            card_mod:
+              style: |
+                .title {
+                  font-size: 28px !important;
+                  margin-bottom: 15px;
+                  margin-top: 15px;
+                }
+          - square: false
+            type: grid
+            columns: 2
+            cards:
+              - type: custom:mushroom-entity-card
+                entity: binary_sensor.front_door_low_battery_level
+                name: Bedroom Door
+                card_mod:
+                  style: |
+                    ha-card {
+                      display: none !important;
+                    }
+              - type: custom:mushroom-entity-card
+                entity: binary_sensor.back_door_battery
+                name: Closet Doors
+                icon: mdi:door-sliding
+                card_mod:
+                  style: |
+                    ha-card {
+                      display: none !important;
+                    }
+        card_mod:
+          style: |
+            .content hui-card {
+              margin: 25px !important;
+            }
+            #root {
+              margin: 50px !important;  # Add margin around the whole panel
+              # padding: 20px !important;  # Optional: add padding to give more space inside the margin
+            }
+  - title: Office Echo Dot
+    path: office-echo
+    type: custom:vertical-layout
+    layout:
+      padding: 25
+    icon: mdi:speaker
+    theme: Rounded
+    badges: []
+    cards:
+      - type: custom:button-card
+        name: Office Echo Dot
+        custom_fields:
+          badge:
+            card:
+              type: custom:button-card
+              name: Volume
+              label: |
+                [[[
+                  let number = states['media_player.office_echo_dot'].attributes.volume_level;
+                  let result = `${number * 100}`;
+                  return result + '%';
+                ]]]
+              show_label: true
+              show_icon: false
+              entity: media_player.office_echo_dot
+              tap_action:
+                action: none
+              styles:
+                grid:
+                  - grid-template-areas: '"n gutter l"'
+                  - grid-template-columns: min-content 5px min-content
+                  - grid-template-rows: min-content
+                card:
+                  - display: |
+                      [[[
+                        var time = states["media_player.office_echo_dot"].state
+                        let welcome = '';
+                        if (time != 'off'){
+                          welcome = 'block'
+                        } else {
+                          welcome = 'none'
+                        }
+                        return welcome;
+                      ]]]
+                  - padding: 6px 10px
+                  - font-size: 12px
+                  - line-height: 18px
+                  - font-weight: 500
+                  - background: var(--contrast20)
+                name:
+                  - color: var(--contrast1)
+                label:
+                  - color: var(--contrast12)
+        styles:
+          grid:
+            - grid-template-areas: '"n" "badge"'
+          card:
+            - background: none
+            - padding: 16px 0
+            - '--mdc-ripple-press-opacity': 0
+          name:
+            - font-size: 32px
+            - color: var(--contrast20)
+          custom_fields:
+            badge:
+              - margin: 16px auto 0 auto
+              - '--mdc-ripple-press-opacity': 0.5
+      - type: custom:button-card
+        entity: media_player.office_echo_dot
+        size: 150pt
+        show_entity_picture: true
+        name: >
+          [[[ return
+          states['media_player.office_echo_dot'].attributes.media_title ]]]
+        show_state: true
+        state_display: >
+          [[[ return
+          states['media_player.office_echo_dot'].attributes.media_artist ]]]
+        show_label: true
+        label: >-
+          [[[ return
+          states['media_player.office_echo_dot'].attributes.media_album_name ]]]
+        styles:
+          card:
+            - background: none
+            - box-shadow: none
+          name:
+            - margin-top: 6%
+            - font-size: 24pt
+            - font-weight: 700
+          state:
+            - margin-top: 3%
+            - font-size: 14pt
+          label:
+            - margin-top: 3%
+            - font-size: 14pt
+          icon:
+            - border-radius: 100%
+          img_cell:
+            - height: 250px
+        state:
+          - value: playing
+            styles:
+              img_cell:
+                - animation: rotating 7s linear infinite
+              icon:
+                - box-shadow: 0px 0px 14px 14px rgb(255,255,255,0.2)
+          - value: paused
+            styles:
+              img_cell:
+                - filter: grayscale(100%)
+          - value: 'off'
+            name: Powered Off
+            state_display: Tap to power on
+            icon: mdi:power
+          - value: idle
+            icon: mdi:music-off
+            state_display: Not Playing
+            styles:
+              icon:
+                - color: null
+                - opacity: 50%
+        tap_action:
+          action: call-service
+          service: media_player.turn_on
+          data: {}
+          target:
+            entity_id: media_player.office_echo_dot
+      - type: conditional
+        conditions:
+          - condition: state
+            entity: media_player.office_echo_dot
+            state_not: 'on'
+        card:
+          square: false
+          type: grid
+          cards:
+            - type: custom:button-card
+              icon: mdi:skip-previous
+              name: Previous track
+              tap_action:
+                action: call-service
+                haptic: medium
+                service: media_player.media_previous_track
+                target:
+                  entity_id:
+                    - media_player.office_echo_dot
+                data: {}
+              styles:
+                icon:
+                  - width: 24px
+                img_cell:
+                  - justify-content: flex-start
+                  - margin-top: 0px
+                name:
+                  - justify-self: start
+                  - font-size: 14px
+                  - margin-top: 0px
+                  - color: var(--contrast20)
+                card:
+                  - height: 84px
+                  - border-radius: 24px
+                  - padding: 8px 0px 16px 20px
+                  - background-color: var(--contrast2)
+                grid:
+                  - grid-template-areas: '"i" "n"'
+            - type: custom:button-card
+              icon: mdi:skip-next
+              name: Next track
+              tap_action:
+                action: call-service
+                haptic: medium
+                service: media_player.media_next_track
+                target:
+                  entity_id:
+                    - media_player.office_echo_dot
+                data: {}
+              styles:
+                icon:
+                  - width: 24px
+                img_cell:
+                  - justify-content: flex-start
+                  - margin-top: 0px
+                name:
+                  - justify-self: start
+                  - font-size: 14px
+                  - margin-top: 0px
+                  - color: var(--contrast20)
+                card:
+                  - height: 84px
+                  - border-radius: 24px
+                  - padding: 8px 0px 16px 20px
+                  - background-color: var(--contrast2)
+                grid:
+                  - grid-template-areas: '"i" "n"'
+            - type: custom:button-card
+              icon: mdi:play
+              entity: media_player.office_echo_dot
+              name: Play
+              tap_action:
+                action: call-service
+                haptic: medium
+                service: media_player.media_play_pause
+                target:
+                  entity_id: media_player.office_echo_dot
+                data: {}
+              styles:
+                icon:
+                  - width: 24px
+                  - margin-left: '-2%'
+                  - color: null
+                img_cell:
+                  - justify-content: flex-start
+                  - margin-top: 0px
+                name:
+                  - justify-self: start
+                  - font-size: 14px
+                  - margin-top: 0px
+                card:
+                  - height: 184px
+                  - border-radius: 24px
+                  - padding: 108px 0px 16px 20px
+                grid:
+                  - grid-template-areas: '"i" "n"'
+              state:
+                - value: playing
+                  name: Pause
+                  icon: mdi:pause
+                  styles:
+                    card:
+                      - background: rgb(101,136,255)
+                    icon:
+                      - color: white
+                    name:
+                      - color: white
+            - type: grid
+              columns: 1
+              square: false
+              cards:
+                - type: custom:button-card
+                  icon: mdi:volume-plus
+                  name: Volume up
+                  tap_action:
+                    action: call-service
+                    haptic: medium
+                    service: media_player.volume_up
+                    service_data:
+                      entity_id: media_player.office_echo_dot
+                  styles:
+                    icon:
+                      - width: 24px
+                    img_cell:
+                      - justify-content: flex-start
+                      - margin-top: 0px
+                    name:
+                      - justify-self: start
+                      - font-size: 14px
+                      - margin-top: 0px
+                      - color: var(--contrast20)
+                    card:
+                      - height: 84px
+                      - border-radius: 24px
+                      - padding: 8px 0px 16px 20px
+                      - background-color: var(--contrast2)
+                    grid:
+                      - grid-template-areas: '"i" "n"'
+                - type: custom:button-card
+                  icon: mdi:volume-minus
+                  name: Volume down
+                  tap_action:
+                    action: call-service
+                    haptic: medium
+                    service: media_player.volume_down
+                    service_data:
+                      entity_id: media_player.office_echo_dot
+                  styles:
+                    icon:
+                      - width: 24px
+                      - color: var(--contrast20)
+                    img_cell:
+                      - justify-content: flex-start
+                      - margin-top: 0px
+                    name:
+                      - justify-self: start
+                      - font-size: 14px
+                      - margin-top: 0px
+                      - color: var(--contrast20)
+                    card:
+                      - height: 84px
+                      - border-radius: 24px
+                      - padding: 8px 0px 16px 20px
+                      - background-color: var(--contrast2)
+                    grid:
+                      - grid-template-areas: '"i" "n"'
+            - type: custom:button-card
+              icon: mdi:stop
+              name: Stop
+              tap_action:
+                action: call-service
+                haptic: medium
+                service: media_player.media_stop
+                target:
+                  entity_id: media_player.office_echo_dot
+                data: {}
+              styles:
+                icon:
+                  - width: 24px
+                img_cell:
+                  - justify-content: flex-start
+                  - margin-top: 0px
+                name:
+                  - justify-self: start
+                  - font-size: 14px
+                  - margin-top: 0px
+                  - color: var(--contrast20)
+                card:
+                  - height: 84px
+                  - border-radius: 24px
+                  - padding: 8px 0px 16px 20px
+                  - background-color: var(--contrast2)
+                grid:
+                  - grid-template-areas: '"i" "n"'
+            - type: custom:button-card
+              icon: mdi:power
+              name: Power Off
+              tap_action:
+                action: call-service
+                haptic: medium
+                service: media_player.turn_off
+                target:
+                  entity_id: media_player.office_echo_dot
+                data: {}
+              styles:
+                icon:
+                  - width: 24px
+                img_cell:
+                  - justify-content: flex-start
+                  - margin-top: 0px
+                name:
+                  - justify-self: start
+                  - font-size: 14px
+                  - margin-top: 0px
+                  - color: var(--contrast20)
+                card:
+                  - height: 84px
+                  - border-radius: 24px
+                  - padding: 8px 0px 16px 20px
+                  - background-color: var(--contrast2)
+                grid:
+                  - grid-template-areas: '"i" "n"'
+          columns: 2
+      - type: custom:button-card
+        name: Playlists & Radio Stations
+        show_icon: false
+        styles:
+          card:
+            - background: none
+            - border-radius: 24px
+            - color: var(--contrast20)
+            - margin-top: 8px
+            - padding: 18px 0px
+            - font-size: 16px
+            - border: 2px solid var(--contrast5)
+        tap_action:
+          action: more-info
+          haptic: medium
+      - type: custom:mushroom-template-card
+        primary: Home
+        secondary: ''
+        icon: mdi:home
+        tap_action:
+          action: navigate
+          navigation_path: /wall-tablet/home
+        hold_action:
+          action: none
+        double_tap_action:
+          action: none
+    subview: true
